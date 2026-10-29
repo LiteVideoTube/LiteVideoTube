@@ -168,6 +168,24 @@ jobs:
             --releaseName "LiteVideoTube $env:SURUM" --tag "v$env:SURUM"
           # ytdlp-izle.yml bu dosyadan paketteki yt-dlp sürümünü okur.
           gh release upload "v$env:SURUM" lisanslar/SURUMLER.txt -R ${{ github.repository }}
+      - name: VirusTotal (kurulum dosyası taranır, bağlantısı sürüm sayfasındaki notun sonuna eklenir)
+        if: ${{ !inputs.on_surum }}
+        continue-on-error: true   # VirusTotal'a ulaşılamazsa sürüm yine yayımlanmış kalır
+        shell: pwsh
+        env:
+          VT_ANAHTAR: ${{ secrets.VIRUSTOTAL_API_KEY }}
+        run: |
+          if (!$env:VT_ANAHTAR) { "VirusTotal anahtarı yok (VIRUSTOTAL_API_KEY), atlandı"; exit 0 }
+          $dosya = Get-ChildItem surumler -Filter *-Setup.exe | Select-Object -First 1
+          $ozet = (Get-FileHash $dosya.FullName -Algorithm SHA256).Hash.ToLower()
+          # 32 MB'tan büyük dosya için VirusTotal ayrı bir yükleme adresi veriyor (en çok 650 MB).
+          $adres = (Invoke-RestMethod -Headers @{ "x-apikey" = $env:VT_ANAHTAR } https://www.virustotal.com/api/v3/files/upload_url).data
+          curl.exe -s --fail -H "x-apikey: $env:VT_ANAHTAR" -F "file=@$($dosya.FullName)" $adres | Out-Null
+          if ($LASTEXITCODE) { "VirusTotal'a yüklenemedi"; exit 1 }
+          $not = gh release view "v$env:SURUM" -R ${{ github.repository }} --json body -q .body
+          $not += "`n`nVirusTotal ($($dosya.Name), SHA-256 $ozet): https://www.virustotal.com/gui/file/$ozet"
+          gh release edit "v$env:SURUM" -R ${{ github.repository }} --notes $not
+          "https://www.virustotal.com/gui/file/$ozet"
   kaynak:
     needs: [ffmpeg, paket]
     if: ${{ !inputs.on_surum }}
