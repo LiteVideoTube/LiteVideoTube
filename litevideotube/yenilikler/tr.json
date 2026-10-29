@@ -1,0 +1,32 @@
+[
+ {
+  "surum": "0.1.0",
+  "tarih": "2026-10-30",
+  "maddeler": [
+   {
+    "baslik": "İlk sürüm",
+    "ayrinti": "LiteVideoTube, YouTube videolarını tarayıcı yerine hafif bir programda izlemek için. Eski ve zayıf bilgisayarda da rahat çalışsın diye yapıldı: aynı videoda Chrome'dan aşağı yukarı iki buçuk kat az bellek kullanıyor."
+   },
+   {
+    "baslik": "Hesap açmadan abonelikler",
+    "ayrinti": "Kanallara YouTube hesabı olmadan abone olabilirsin. İstersen aboneliklerini tarayıcındaki YouTube hesabından tek seferde getirebilirsin. İstersen yeni videolara program kapalıyken de bakılır."
+   },
+   {
+    "baslik": "Aşağı kaydırınca yanda oynayan video",
+    "ayrinti": "Video sayfasında aşağı inip yorumları ya da önerileri okurken video küçülüp köşede oynamayı sürdürür."
+   },
+   {
+    "baslik": "İndirme, altyazı ve çeviri",
+    "ayrinti": "Videoyu ya da yalnız sesini indirebilirsin. Altyazılar ve YouTube'un makine çevirisiyle başka dillere çevrilmiş altyazılar da var."
+   },
+   {
+    "baslik": "Sekmeler, Shorts ve listeler",
+    "ayrinti": "Sekmeler tarayıcıdaki gibi arkada açık durmaz, yalnız yerini hatırlar. Bir sekmeye geçince sayfa yeniden açılır; bu biraz zaman alır, video kaldığı yerden sürer. Böylece arkadaki sekmeler bellek harcamaz. Shorts izleyebilir, kendi oynatma listelerini ve Sonra izle listeni tutabilirsin. Listeler bilgisayarında durur, hesaba yazılmaz."
+   },
+   {
+    "baslik": "Kendini güncelliyor",
+    "ayrinti": "Yeni sürüm çıkınca program onu arka planda indirir ve sorar. Yalnız değişen kısım iner; bilgisayarın proxy ayarı varsa ondan geçer."
+   }
+  ]
+ }
+]

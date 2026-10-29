@@ -1,0 +1,5 @@
+Simgeler: Google Material Symbols (Rounded, dolu), Apache License 2.0.
+Kaynak: https://github.com/google/material-design-icons (symbols/web/<ad>/materialsymbolsrounded/<ad>_fill1_24px.svg). Renk beyaza çevrildi.
+shorts.svg Material Symbols'tan değil: bölüm başlığı için çizildi (dik ekran ve oynat üçgeni; YouTube'un Shorts logosu kullanılmadı, onların markası).
+bolge_*.svg (dil seçme ekranının bölge haritaları): Natural Earth 1:110m ülke sınırları (kamu malı, naturalearthdata.com),
+eşdikdörtgen izdüşüm, Antarktika yok. Üreten betik: araclar/bolge_haritasi.py.

@@ -1,0 +1,51 @@
+name: yt-dlp güncel kalsın
+# yt-dlp'nin yeni sürümü çıkınca GitHub programın yeni sürümünü kendisi hazırlayıp yayımlar,
+# kullanıcıya "Yeni sürüm var" penceresiyle gelir. Bu iş akışı yt-dlp'nin son sürümünü, programın son yayımlanmış
+# sürümündeki yt-dlp ile (o sürümün SURUMLER.txt dosyası) karşılaştırır; farklıysa son sürüm numarasının son hanesini
+# bir artırıp yayin.yml'yi çağırır (ör. 0.2.0 → 0.2.1). Henüz hiç sürüm yoksa bir şey yapmaz: ilk sürüm elle yayımlanır.
+#
+# ZAMANLAYICI KAPALI (depo herkese açılınca açılacak). Açmak için aşağıdaki "schedule" satırlarının başındaki
+# "#" işaretleri kaldırılır: her gün 06:17 UTC'de (Türkiye'de 09:17) bakar. Elle denemek: Actions > "yt-dlp güncel
+# kalsın" > Run workflow ("yalniz_bak" evet: yalnız ne yapacağını yazar, yayımlamaz).
+on:
+  # schedule:
+  #   - cron: "17 6 * * *"
+  workflow_dispatch:
+    inputs:
+      yalniz_bak:
+        description: Yalnız karşılaştır, yayımlama (evet/hayir)
+        default: "evet"
+jobs:
+  bak:
+    runs-on: ubuntu-latest
+    outputs:
+      yeni_surum: ${{ steps.karsilastir.outputs.yeni_surum }}
+      ytdlp: ${{ steps.karsilastir.outputs.ytdlp }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Karşılaştır
+        id: karsilastir
+        run: |
+          R=${{ github.repository }}
+          ytdlp=$(gh release view -R yt-dlp/yt-dlp --json tagName -q .tagName)
+          son=$(gh release list -R $R --exclude-pre-releases --exclude-drafts -L 50 --json tagName -q '.[].tagName' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1 || true)
+          echo "yt-dlp son sürüm: $ytdlp; programın son sürümü: ${son:-yok}"
+          if [ -z "$son" ]; then echo "Henüz yayımlanmış sürüm yok; ilk sürüm elle (yayin.yml)."; exit 0; fi
+          gh release download "$son" -R $R -p SURUMLER.txt -O SURUMLER.txt
+          paketteki=$(grep -oE '^yt-dlp.exe: [^ ]+' SURUMLER.txt | cut -d' ' -f2)
+          echo "programın son sürümündeki yt-dlp: ${paketteki:-bilinmiyor}"
+          if [ "$paketteki" = "$ytdlp" ]; then echo "Güncel, yapılacak bir şey yok."; exit 0; fi
+          IFS=. read -r a b c <<< "${son#v}"
+          yeni="$a.$b.$((c + 1))"
+          echo "Yeni sürüm hazırlanacak: $yeni (yt-dlp $paketteki → $ytdlp)"
+          echo "yeni_surum=$yeni" >> "$GITHUB_OUTPUT"; echo "ytdlp=$ytdlp" >> "$GITHUB_OUTPUT"
+  yayin:
+    needs: bak
+    if: needs.bak.outputs.yeni_surum != '' && (github.event_name == 'schedule' || inputs.yalniz_bak == 'hayir')
+    uses: ./.github/workflows/yayin.yml
+    permissions:
+      contents: write
+    with:
+      surum: ${{ needs.bak.outputs.yeni_surum }}
+      notlar: "yt-dlp ${{ needs.bak.outputs.ytdlp }} (YouTube'daki değişikliklere uyum / keeps up with YouTube changes)"

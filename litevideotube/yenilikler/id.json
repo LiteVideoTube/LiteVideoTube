@@ -1,0 +1,32 @@
+[
+ {
+  "surum": "0.1.0",
+  "tarih": "2026-10-30",
+  "maddeler": [
+   {
+    "baslik": "Versi pertama",
+    "ayrinti": "LiteVideoTube untuk menonton video YouTube di program yang ringan, bukan di peramban. Program ini dibuat agar lancar di komputer lama dan lambat: untuk video yang sama, memori yang dipakai sekitar dua setengah kali lebih sedikit daripada Chrome."
+   },
+   {
+    "baslik": "Langganan tanpa akun",
+    "ayrinti": "Anda bisa berlangganan kanal tanpa akun YouTube. Jika mau, langganan dari akun YouTube di peramban Anda bisa dibawa sekaligus. Video baru juga bisa diperiksa saat program ditutup."
+   },
+   {
+    "baslik": "Video tetap diputar saat menggulir",
+    "ayrinti": "Saat Anda menggulir halaman video ke bawah untuk membaca komentar atau saran, video mengecil dan terus diputar di sudut."
+   },
+   {
+    "baslik": "Unduhan, subtitel, dan terjemahan",
+    "ayrinti": "Anda bisa mengunduh video atau suaranya saja. Ada subtitel, juga subtitel yang diterjemahkan mesin oleh YouTube ke bahasa lain."
+   },
+   {
+    "baslik": "Tab, Shorts, dan daftar",
+    "ayrinti": "Tab tidak tetap terbuka di latar belakang seperti di peramban; tab hanya mengingat posisi Anda. Saat Anda pindah ke sebuah tab, halamannya dibuka lagi; ini butuh sedikit waktu, dan video berlanjut dari tempat terakhir. Dengan begitu tab di belakang tidak memakai memori. Anda bisa menonton Shorts dan menyimpan playlist sendiri serta daftar Tonton nanti. Daftar disimpan di komputer Anda dan tidak ditulis ke akun mana pun."
+   },
+   {
+    "baslik": "Memperbarui diri sendiri",
+    "ayrinti": "Saat versi baru keluar, program mengunduhnya di latar belakang lalu bertanya kepada Anda. Hanya bagian yang berubah yang diunduh; jika komputer Anda memakai proxy, pembaruan lewat proxy itu."
+   }
+  ]
+ }
+]

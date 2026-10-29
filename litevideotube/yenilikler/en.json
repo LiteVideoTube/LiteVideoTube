@@ -1,0 +1,32 @@
+[
+ {
+  "surum": "0.1.0",
+  "tarih": "2026-10-30",
+  "maddeler": [
+   {
+    "baslik": "First version",
+    "ayrinti": "LiteVideoTube lets you watch YouTube videos in a light program instead of a browser. It is made to run well on old and slow computers: on the same video it uses about two and a half times less memory than Chrome."
+   },
+   {
+    "baslik": "Subscriptions without an account",
+    "ayrinti": "You can subscribe to channels without a YouTube account. If you like, you can bring your subscriptions over from the YouTube account in your browser in one go. You can also have new videos checked while the program is closed."
+   },
+   {
+    "baslik": "Video keeps playing when you scroll down",
+    "ayrinti": "When you scroll down a video page to read comments or suggestions, the video shrinks and keeps playing in the corner."
+   },
+   {
+    "baslik": "Downloads, subtitles and translation",
+    "ayrinti": "You can download a video or just its sound. Subtitles are available, as well as subtitles machine-translated into other languages by YouTube."
+   },
+   {
+    "baslik": "Tabs, Shorts and lists",
+    "ayrinti": "Tabs don't stay open in the background like in a browser; they only remember where you were. When you switch to a tab, the page opens again; this takes a moment, and a video continues where you left off. This way background tabs use no memory. You can watch Shorts and keep your own playlists and a Watch later list. Lists stay on your computer and are not written to any account."
+   },
+   {
+    "baslik": "Updates itself",
+    "ayrinti": "When a new version comes out, the program downloads it in the background and asks you. Only the changed part is downloaded; if your computer uses a proxy, the update goes through it."
+   }
+  ]
+ }
+]

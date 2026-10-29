@@ -1,0 +1,208 @@
+name: Windows paketi
+# Elle çalıştırılır (Actions dakikası sınırlı). Programı PyInstaller ile tek klasörlük bir Windows
+# paketine çevirir (exe + Qt + libmpv + yt-dlp + küçük ffmpeg + QuickJS), paketin kendisini açıp sınar
+# (arama sayfası; YouTube dışı bir videoyla video sayfası), Windows Defender'a taratır, boyutunu yazar.
+on:
+  workflow_dispatch:
+    inputs:
+      video:
+        description: Oynatılacak adres
+        default: https://download.blender.org/durian/trailer/sintel_trailer-720p.mp4
+      sakla:
+        description: Paketin zip'i yüklensin mi (gizli deponun depolama payını kullanır)
+        default: "hayir"
+jobs:
+  ffmpeg:
+    uses: ./.github/workflows/ffmpeg.yml
+  paket:
+    needs: ffmpeg
+    runs-on: windows-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: ffmpeg-kucuk
+          path: ffmpeg-kucuk
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Python paketleri
+        run: python -m pip install -q -r requirements.txt pyinstaller
+      - name: libmpv, yt-dlp, ffmpeg, deno
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force yardim, indir | Out-Null
+          gh release download -R shinchiro/mpv-winbuild-cmake -p "mpv-dev-x86_64-2*.7z" -D indir
+          7z x -y -oindir/mpv (Get-ChildItem indir/mpv-dev-*.7z).FullName | Out-Null
+          Copy-Item indir/mpv/libmpv-2.dll yardim/
+          Invoke-WebRequest https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe -OutFile yardim/yt-dlp.exe
+          # JavaScript çalıştırıcısı: QuickJS (2 MB); deno 93 MB tutuyordu.
+          gh release download -R quickjs-ng/quickjs -p qjs-windows-x86_64.exe -D indir
+          Copy-Item indir/qjs-windows-x86_64.exe yardim/qjs.exe
+          # ffmpeg: yt-dlp'nin görüntü ile sesi birleştirmesi ve MP3 için. ffprobe gerekmiyor (denendi). Yalnız bu işlere
+          # yeten küçük derleme (ffmpeg.yml, paket/ffmpeg_derle.sh; 27 Ekim: 162 MB yerine ~3 MB).
+          Copy-Item ffmpeg-kucuk/ffmpeg.exe yardim/
+          Get-ChildItem yardim | ForEach-Object { "{0,-20} {1,8:N1} MB" -f $_.Name, ($_.Length / 1MB) }
+          # Lisanslar (GPL-3.0-or-later; paket/lisanslar/OKUBENI.txt): paketteki parçaların tam sürümleri ve
+          # derleme anındaki lisans dosyaları paketin lisanslar/ klasörüne girer.
+          New-Item -ItemType Directory -Force lisanslar | Out-Null
+          Copy-Item paket/lisanslar/* lisanslar/
+          Copy-Item LICENSE lisanslar/GPL-3.0.txt
+          $mpv = gh release view -R shinchiro/mpv-winbuild-cmake --json tagName -q .tagName
+          $ytdlp = (& yardim/yt-dlp.exe --version).Trim()
+          $qjs = gh release view -R quickjs-ng/quickjs --json tagName -q .tagName
+          $ff = ((& yardim/ffmpeg.exe -hide_banner -version) | Select-Object -First 1)
+          @(
+            "Paket: $(Get-Date -Format 'yyyy-MM-dd') / LiteVideoTube commit $env:GITHUB_SHA",
+            "libmpv-2.dll: shinchiro/mpv-winbuild-cmake $mpv  https://github.com/shinchiro/mpv-winbuild-cmake/releases/tag/$mpv",
+            "  dosya / file: $((Get-ChildItem indir/mpv-dev-*.7z).Name)",
+            "ffmpeg.exe: $ff",
+            "  $((Get-Content ffmpeg-kucuk/SURUM.txt | Select-Object -First 2) -join ' / ')",
+            "yt-dlp.exe: $ytdlp  https://github.com/yt-dlp/yt-dlp/releases/tag/$ytdlp",
+            "qjs.exe: quickjs-ng $qjs  https://github.com/quickjs-ng/quickjs/releases/tag/$qjs"
+          ) | Set-Content -Encoding utf8 lisanslar/SURUMLER.txt
+          Get-Content lisanslar/SURUMLER.txt
+          Invoke-WebRequest "https://raw.githubusercontent.com/yt-dlp/yt-dlp/$ytdlp/THIRD_PARTY_LICENSES.txt" -OutFile lisanslar/yt-dlp-THIRD_PARTY_LICENSES.txt
+          Copy-Item ffmpeg-kucuk/ffmpeg-LICENSE.md lisanslar/ffmpeg-LICENSE.txt
+          Copy-Item ffmpeg-kucuk/LAME-COPYING.txt lisanslar/
+      - name: PyInstaller
+        shell: pwsh
+        run: |
+          pyinstaller --noconfirm --onedir --windowed --name LiteVideoTube --icon paket/litevideotube.ico `
+            --add-data "litevideotube/qml;litevideotube/qml" `
+            --add-data "litevideotube/simgeler;litevideotube/simgeler" `
+            --add-data "litevideotube/ceviri;litevideotube/ceviri" `
+            --add-data "litevideotube/yenilikler;litevideotube/yenilikler" `
+            --exclude-module tkinter --paths . `
+            paket/giris.py
+          Copy-Item yardim/* dist/LiteVideoTube/
+          Copy-Item -Recurse lisanslar dist/LiteVideoTube/
+          "Paketteki lisanslar/:" ; Get-ChildItem dist/LiteVideoTube/lisanslar | ForEach-Object { "  {0,8:N0} B  {1}" -f $_.Length, $_.Name }
+          # Program yalnız Basic görünümünü kullanıyor (uygulama.py); öbür Qt Quick Controls temaları çıkar.
+          $q = "dist/LiteVideoTube/_internal/PySide6"
+          foreach ($t in "FluentWinUI3", "Imagine", "Material", "Universal", "Fusion", "iOS", "macOS") {
+            Remove-Item -Recurse -Force -ErrorAction SilentlyContinue "$q/qml/QtQuick/Controls/$t"
+            Remove-Item -Force -ErrorAction SilentlyContinue "$q/Qt6QuickControls2$t*.dll"
+          }
+          $boy = (Get-ChildItem -Recurse dist/LiteVideoTube | Measure-Object Length -Sum).Sum / 1MB
+          "Paket: {0:N0} MB" -f $boy | Tee-Object boyut.txt
+          "En büyük 30 dosya:" | Tee-Object -Append boyut.txt
+          Get-ChildItem -Recurse -File dist/LiteVideoTube | Sort-Object Length -Descending | Select-Object -First 30 | ForEach-Object {
+            "{0,8:N1} MB  {1}" -f ($_.Length / 1MB), $_.FullName.Replace("$PWD\dist\LiteVideoTube\", "") } | Tee-Object -Append boyut.txt
+      - name: Mesa (yalnız bu sınama makinesi için; ekran kartı yok)
+        shell: pwsh
+        run: |
+          gh release download -R pal1000/mesa-dist-win -p "mesa3d-*-release-msvc.7z" -D indir
+          7z x -y -oindir/mesa (Get-ChildItem indir/mesa3d-*.7z).FullName | Out-Null
+          New-Item -ItemType Directory -Force sinama | Out-Null
+          Copy-Item -Recurse dist/LiteVideoTube sinama/
+          Copy-Item indir/mesa/x64/*.dll sinama/LiteVideoTube/
+      - name: 1. Paketin kendisi, arama sayfası
+        shell: pwsh
+        run: |
+          $env:LVT_ARA = "blender sintel"
+          $env:LVT_SINAMA = "15,$PWD\arama.png"
+          $env:LVT_VERI = "$PWD\veri"
+          $p = Start-Process sinama/LiteVideoTube/LiteVideoTube.exe -PassThru -RedirectStandardOutput arama.txt -RedirectStandardError arama-hata.txt
+          $p | Wait-Process -Timeout 90 -ErrorAction SilentlyContinue
+          if (!$p.HasExited) { "90 sn'de kapanmadı" | Tee-Object -Append arama-hata.txt; Stop-Process $p -Force }
+          # İlk açılışta program ekrana göre yakınlık seçip kendini yeniden başlatabilir (kisi.ekrana_gore_yakinlik):
+          # ilk süreç hemen çıkar, resmi yeni süreç kaydeder.
+          for ($i = 0; $i -lt 90 -and !(Test-Path arama.png); $i++) { Start-Sleep 1 }
+          Get-Content veri\kisiler.json -ErrorAction SilentlyContinue | Tee-Object -Append arama.txt
+          if (!(Test-Path arama.png)) { exit 1 }
+      - name: 2. Paketin kendisi, video sayfası
+        if: always()
+        shell: pwsh
+        run: |
+          $env:LVT_AC = "${{ inputs.video }}"
+          $env:LVT_SINAMA = "25,$PWD\video.png"
+          $env:LVT_LOG = "$PWD\mpv.log"
+          $env:LVT_VERI = "$PWD\veri"
+          $p = Start-Process sinama/LiteVideoTube/LiteVideoTube.exe -PassThru -RedirectStandardOutput video.txt -RedirectStandardError video-hata.txt
+          $p | Wait-Process -Timeout 120 -ErrorAction SilentlyContinue
+          if (!$p.HasExited) { "120 sn'de kapanmadı" | Tee-Object -Append video-hata.txt; Stop-Process $p -Force }
+          for ($i = 0; $i -lt 60 -and !(Test-Path video.png); $i++) { Start-Sleep 1 }
+          if (!(Test-Path video.png)) { exit 1 }
+      - name: 6. Windows büyütmesi %150 gibi (ilk açılışta yakınlık %67 seçilip program kendini yeniden başlatmalı)
+        if: always()
+        shell: pwsh
+        run: |
+          $env:QT_SCREEN_SCALE_FACTORS = "1.5"
+          $env:LVT_ARA = "blender sintel"
+          $env:LVT_SINAMA = "20,$PWD\buyutme.png"
+          $env:LVT_VERI = "$PWD\veri3"
+          $p = Start-Process sinama/LiteVideoTube/LiteVideoTube.exe -PassThru -RedirectStandardOutput buyutme.txt -RedirectStandardError buyutme-hata.txt
+          for ($i = 0; $i -lt 120 -and !(Test-Path buyutme.png); $i++) { Start-Sleep 1 }
+          Start-Sleep 3
+          Get-Process LiteVideoTube -ErrorAction SilentlyContinue | Stop-Process -Force
+          Get-Content veri3\kisiler.json | Tee-Object -Append buyutme.txt
+          if (!(Test-Path buyutme.png)) { exit 1 }
+      - name: 3. yt-dlp paketin içinden (ffmpeg ve deno bulunuyor mu)
+        if: always()
+        shell: pwsh
+        run: |
+          dist/LiteVideoTube/yt-dlp.exe --version | Tee-Object ytdlp.txt
+          $env:PATH = "$PWD\dist\LiteVideoTube;$env:PATH"
+          dist/LiteVideoTube/yt-dlp.exe -v --simulate --js-runtimes "quickjs:$PWD\dist\LiteVideoTube\qjs.exe" "${{ inputs.video }}" 2>&1 | Select-String "ffmpeg|JS runtimes|exe versions" | Tee-Object -Append ytdlp.txt
+      - name: 5. Arka plan yoklaması (program kapanınca --arkada başlıyor mu, kanala bakıyor mu)
+        if: always()
+        shell: pwsh
+        run: |
+          $env:PYTHONUTF8 = "1"
+          $env:LVT_VERI = "$PWD\veri2"
+          python araclar/arkada_sinama.py hazirla
+          $env:LVT_SINAMA = "10,$PWD\kapanis.png"
+          $p = Start-Process sinama/LiteVideoTube/LiteVideoTube.exe -PassThru
+          $p | Wait-Process -Timeout 60 -ErrorAction SilentlyContinue
+          Remove-Item env:LVT_SINAMA
+          Start-Sleep 5
+          "Program kapandıktan sonra çalışanlar:" | Tee-Object arkada.txt
+          Get-CimInstance Win32_Process -Filter "Name='LiteVideoTube.exe'" | ForEach-Object {
+            "{0}  {1:N1} MB  {2}" -f $_.ProcessId, ($_.WorkingSetSize / 1MB), $_.CommandLine } | Tee-Object -Append arkada.txt
+          python araclar/arkada_sinama.py sifirla
+          Start-Sleep 45
+          python araclar/arkada_sinama.py denetle | Tee-Object -Append arkada.txt
+          $ok = $LASTEXITCODE
+          Get-CimInstance Win32_Process -Filter "Name='LiteVideoTube.exe'" | ForEach-Object {
+            "45 sn sonra: {0}  {1:N1} MB" -f $_.ProcessId, ($_.WorkingSetSize / 1MB) } | Tee-Object -Append arkada.txt
+          Get-Process LiteVideoTube -ErrorAction SilentlyContinue | Stop-Process -Force
+          Remove-Item env:LVT_VERI
+          python araclar/arkada_sinama.py baslangic | Tee-Object -Append arkada.txt
+          exit $ok
+      - name: 4. Windows Defender taraması
+        if: always()
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          $d = Get-MpComputerStatus | Select-Object AntivirusEnabled, RealTimeProtectionEnabled, AntivirusSignatureVersion
+          $d | Format-List | Out-String | Tee-Object defender.txt
+          Start-MpScan -ScanType CustomScan -ScanPath "$PWD\dist\LiteVideoTube"
+          "Bulunan tehditler:" | Tee-Object -Append defender.txt
+          Get-MpThreatDetection | Format-List | Out-String | Tee-Object -Append defender.txt
+      - name: Zip
+        if: inputs.sakla == 'evet'
+        shell: pwsh
+        run: Compress-Archive dist/LiteVideoTube LiteVideoTube-windows.zip
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sonuc
+          path: |
+            arama.png
+            video.png
+            buyutme.png
+            kapanis.png
+            arkada.txt
+            *.txt
+            *.png.txt
+            mpv.log
+      - uses: actions/upload-artifact@v4
+        if: inputs.sakla == 'evet'
+        with:
+          name: paket
+          path: LiteVideoTube-windows.zip
+          retention-days: 3
