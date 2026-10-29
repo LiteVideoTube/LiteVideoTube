@@ -1,0 +1,101 @@
+name: Kaynak kodu arşivleri (libmpv, ffmpeg)
+# GPL yükümlülüğü: Windows paketine giren libmpv-2.dll'in ve ffmpeg.exe'nin kaynak kodu
+# kullanıcının indirdiği pakete eklenmez; deponun sürümler (Releases) sayfasında "kaynak-kodu" adlı tek bir yerde,
+# bu parçaların her yeni sürümü için bir kez durur. paket/lisanslar/OKUBENI.txt oraya gösterir.
+# "kaynak-kodu" ön sürüm (prerelease) işaretlidir: programın güncelleme denetimi (Velopack, ön sürümlere bakmaz) ve
+# "en son sürüm" rozeti onu görmez.
+#
+# yayimla "evet" değilse yalnız arşivler hazırlanır ve boyutları yazılır, hiçbir şey yayımlanmaz (deneme). Program
+# sürümü yayımlanırken yayin.yml bunu "evet" ile çağırır. Depo gizliyken "evet" verilmez.
+on:
+  workflow_dispatch:
+    inputs:
+      libmpv_etiketi:
+        description: shinchiro/mpv-winbuild-cmake sürüm etiketi (boşsa en sonuncusu)
+        default: ""
+      ffmpeg_surum:
+        description: ffmpeg sürümü (boşsa son kararlı sürüm)
+        default: ""
+      yayimla:
+        description: Sürümler sayfasına yüklensin mi (evet/hayir)
+        default: "hayir"
+  workflow_call:
+    inputs:
+      libmpv_etiketi: { type: string, default: "" }
+      ffmpeg_surum: { type: string, default: "" }
+      yayimla: { type: string, default: "hayir" }
+jobs:
+  ffmpeg:
+    uses: ./.github/workflows/ffmpeg.yml
+    with:
+      surum: ${{ inputs.ffmpeg_surum || '' }}
+  arsivle:
+    needs: ffmpeg
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: ffmpeg-kucuk
+          path: ffmpeg-kucuk
+      - name: ffmpeg.exe'nin kaynağı (ffmpeg ve LAME arşivleri, derleme betiği)
+        run: |
+          mkdir -p arsiv
+          v="${{ needs.ffmpeg.outputs.surum }}"
+          cp ffmpeg-kucuk/kaynak/ffmpeg-$v.tar.xz arsiv/ffmpeg-$v.tar.xz
+          cp ffmpeg-kucuk/kaynak/lame-*.tar.gz arsiv/
+          cp ffmpeg-kucuk/kaynak/ffmpeg_derle.sh arsiv/ffmpeg-$v-derleme-betigi.sh
+          cp ffmpeg-kucuk/SURUM.txt arsiv/ffmpeg-$v-SURUM.txt
+      - uses: actions/checkout@v4
+        with:
+          path: depo
+      - name: libmpv-2.dll'in kaynağı (shinchiro/mpv-winbuild-cmake derlemesi; paket/libmpv_kaynak.py)
+        run: |
+          set -euo pipefail
+          r=shinchiro/mpv-winbuild-cmake
+          e="${{ inputs.libmpv_etiketi }}"
+          [ -n "$e" ] || e=$(gh release view -R $r --json tagName -q .tagName)
+          echo "libmpv derlemesi: $e"
+          gh release view -R $r "$e" --json body -q .body > arsiv/libmpv-$e-surum-notu.txt
+          # Sürüm notunda derlemenin GitHub çalışması yazıyor: tarifin tam commit'i ve derlemenin başladığı an oradan.
+          calisma=$(grep -oE 'actions/runs/[0-9]+' arsiv/libmpv-$e-surum-notu.txt | head -1 | cut -d/ -f3)
+          tarif=$(gh api repos/$r/actions/runs/$calisma -q .head_sha)
+          zaman=$(gh api repos/$r/actions/runs/$calisma -q .run_started_at)
+          echo "derleme çalışması $calisma, tarif $tarif, başlangıç $zaman"
+          git clone -q --filter=blob:none https://github.com/$r tarif
+          git -C tarif checkout -q $tarif
+          git -C tarif archive --prefix=mpv-winbuild-cmake/ -o "$PWD/arsiv/libmpv-$e-derleme-tarifi-${tarif:0:10}.tar.gz" $tarif
+          # mpv'nin commit'i dll'in içinde yazıyor ("mpv v0.41.0-1227-ge471496c5").
+          gh release download -R $r "$e" -p "mpv-dev-x86_64-2*.7z" -D indir
+          7z x -y -oindir/mpv indir/mpv-dev-*.7z libmpv-2.dll > /dev/null
+          mpv=$(strings -n 8 indir/mpv/libmpv-2.dll | grep -oE 'mpv v[0-9][^ ]*-g[0-9a-f]{7,}' | head -1 | grep -oE '[0-9a-f]{7,}$')
+          echo "mpv commit: $mpv"
+          mkdir -p arsiv/libmpv-$e
+          python3 depo/paket/libmpv_kaynak.py tarif "$zaman" "$mpv" arsiv/libmpv-$e
+          cp arsiv/libmpv-$e/LISTE.txt arsiv/libmpv-$e-LISTE.txt
+          # Sürümler sayfasına tek tek dosya olarak (klasör yüklenemez): libmpv-<etiket>-<parça>-<commit>.tar.xz
+          for f in arsiv/libmpv-$e/*.tar.* arsiv/libmpv-$e/*.tgz; do [ -e "$f" ] && mv "$f" "arsiv/libmpv-$e-$(basename "$f")"; done
+          rm -rf arsiv/libmpv-$e
+      - name: Ne hazırlandı
+        run: |
+          ls -la arsiv
+          du -sh arsiv
+          cat arsiv/*-LISTE.txt
+      # Arşivler yüklenen dosya (artifact) olarak saklanmaz: toplamı GB düzeyinde, gizli deponun depolama payını
+      # aşar. Yayımlanacaksa aynı işte doğrudan sürümler sayfasına gider.
+      - name: "Sürümler sayfasında kaynak-kodu: yalnız henüz orada olmayan dosyalar yüklenir"
+        if: inputs.yayimla == 'evet'
+        run: |
+          R=${{ github.repository }}
+          if ! gh release view kaynak-kodu -R $R > /dev/null 2>&1; then
+            gh release create kaynak-kodu -R $R --prerelease --title "Kaynak kodu: libmpv ve ffmpeg / Source code" \
+              --notes "LiteVideoTube'un Windows paketindeki libmpv-2.dll ve ffmpeg.exe'nin kaynak kodu ve derleme tarifleri (GPL / LGPL). Dosya adlarında parçanın sürümü yazar; bir pakette hangi sürümün olduğu paketin lisanslar/SURUMLER.txt dosyasında. Source code and build recipes of the libmpv-2.dll and ffmpeg.exe shipped in the LiteVideoTube Windows package; the versions in a package are listed in its lisanslar/SURUMLER.txt."
+          fi
+          var=$(gh release view kaynak-kodu -R $R --json assets -q '.assets[].name')
+          for f in arsiv/*; do
+            if grep -qxF "$(basename "$f")" <<< "$var"; then echo "zaten var: $(basename "$f")"; else gh release upload kaynak-kodu -R $R "$f"; fi
+          done

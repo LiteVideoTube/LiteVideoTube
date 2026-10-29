@@ -1,0 +1,180 @@
+name: Sürüm yayımla (Velopack → GitHub Releases)
+# Programın normal sürüm yayımlama akışı:
+# Windows paketi yapılır (windows-paket.yml ile aynı parçalar: küçük ffmpeg, libmpv, yt-dlp, QuickJS, lisanslar),
+# kısa bir açılış denemesinden geçer, Velopack'le paketlenir (bir önceki sürüme göre yalnız değişen kısım da: delta)
+# ve deponun sürümler sayfasına "v<sürüm>" adıyla yüklenir. Kurulu programlar yeni sürümü oradan alır
+# (litevideotube/guncelleme.py, "Yeni sürüm var" penceresi). Paketteki libmpv ya da ffmpeg yeni bir sürümse kaynak
+# arşivleri de "kaynak-kodu"na eklenir (kaynak-kodu.yml).
+#
+# Elle: Actions > "Sürüm yayımla" > Run workflow, sürüm numarasını yaz (ör. 0.2.0). yt-dlp güncellenince ytdlp-izle.yml
+# bunu kendisi çağırır. Depo gizliyken çalıştırılmaz: kullanıcıların programı gizli depodan güncelleme alamaz.
+# Tek istisna deneme: "on_surum" işaretlenirse sürüm "ön sürüm" olarak yüklenir (kurulu programlar görmez), kaynak
+# arşivi yayımlanmaz; windows-guncelleme-github.yml bu sürümlerle güncellemeyi sınar, sonra sürümler silinir.
+on:
+  workflow_dispatch:
+    inputs:
+      surum:
+        description: Yeni sürüm (ör. 0.2.0; öncekinden büyük olmalı)
+        required: true
+      notlar:
+        description: Sürüm notu (sürümler sayfasında görünür)
+        default: ""
+      on_surum:
+        description: Deneme için ön sürüm (kurulu programlar görmez, kaynak arşivi yayımlanmaz)
+        type: boolean
+        default: false
+  workflow_call:
+    inputs:
+      surum: { type: string, required: true }
+      notlar: { type: string, default: "" }
+      on_surum: { type: boolean, default: false }
+concurrency: yayin   # iki yayın aynı anda olmasın
+jobs:
+  ffmpeg:
+    uses: ./.github/workflows/ffmpeg.yml
+  paket:
+    needs: ffmpeg
+    runs-on: windows-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write
+    outputs:
+      libmpv: ${{ steps.parcalar.outputs.libmpv }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+      KIMLIK: LiteVideoTube   # değişmemeli: değişirse kurulu programlar güncellemeyi bulamaz
+      SURUM: ${{ inputs.surum }}
+      NOTLAR: ${{ inputs.notlar }}
+      ON: ${{ inputs.on_surum && '--pre' || '' }}   # ön sürüm denemesinde vpk'ye --pre
+      PYTHONUTF8: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: ffmpeg-kucuk
+          path: ffmpeg-kucuk
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Sürüm numarası geçerli mi, bu sürüm daha önce yayımlanmış mı
+        shell: pwsh
+        run: |
+          if ($env:SURUM -notmatch '^\d+\.\d+\.\d+$') { "Sürüm X.Y.Z biçiminde olmalı: $env:SURUM"; exit 1 }
+          gh release view "v$env:SURUM" -R ${{ github.repository }} 2>$null
+          if ($LASTEXITCODE -eq 0) { "v$env:SURUM zaten yayımlanmış"; exit 1 }
+          exit 0
+      - name: Yenilikler notu var mı (her dilde, tarihiyle; programın güncellendi penceresi ve Yenilikler sayfası okur)
+        if: ${{ !inputs.on_surum }}
+        shell: pwsh
+        run: python araclar/yenilikler_sinama.py $env:SURUM
+      - name: Ön sürüm denemesinde Yenilikler notu (yalnız bu pakete; güncellendi penceresi deneme sürümünde de başlık göstersin)
+        if: ${{ inputs.on_surum }}
+        shell: pwsh
+        run: python araclar/yenilikler_deneme_notu.py $env:SURUM
+      - name: Python paketleri ve vpk
+        shell: pwsh
+        run: |
+          python -m pip install -q -r requirements.txt pyinstaller velopack
+          $v = python -c "import importlib.metadata as m; print(m.version('velopack'))"
+          dotnet tool install -g vpk --version $v | Out-Null
+      - name: libmpv, yt-dlp, küçük ffmpeg, QuickJS ve lisanslar
+        id: parcalar
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force yardim, indir, lisanslar | Out-Null
+          $mpv = gh release view -R shinchiro/mpv-winbuild-cmake --json tagName -q .tagName
+          gh release download -R shinchiro/mpv-winbuild-cmake $mpv -p "mpv-dev-x86_64-2*.7z" -D indir
+          7z x -y -oindir/mpv (Get-ChildItem indir/mpv-dev-*.7z).FullName | Out-Null
+          Copy-Item indir/mpv/libmpv-2.dll yardim/
+          Invoke-WebRequest https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe -OutFile yardim/yt-dlp.exe
+          gh release download -R quickjs-ng/quickjs -p qjs-windows-x86_64.exe -D indir
+          Copy-Item indir/qjs-windows-x86_64.exe yardim/qjs.exe
+          Copy-Item ffmpeg-kucuk/ffmpeg.exe yardim/
+          Copy-Item paket/lisanslar/* lisanslar/
+          Copy-Item LICENSE lisanslar/GPL-3.0.txt
+          Copy-Item ffmpeg-kucuk/ffmpeg-LICENSE.md lisanslar/ffmpeg-LICENSE.txt
+          Copy-Item ffmpeg-kucuk/LAME-COPYING.txt lisanslar/
+          $ytdlp = (& yardim/yt-dlp.exe --version).Trim()
+          $qjs = gh release view -R quickjs-ng/quickjs --json tagName -q .tagName
+          $ff = ((& yardim/ffmpeg.exe -hide_banner -version) | Select-Object -First 1)
+          @(
+            "LiteVideoTube $env:SURUM / $(Get-Date -Format 'yyyy-MM-dd') / commit $env:GITHUB_SHA",
+            "libmpv-2.dll: shinchiro/mpv-winbuild-cmake $mpv  https://github.com/shinchiro/mpv-winbuild-cmake/releases/tag/$mpv",
+            "  dosya / file: $((Get-ChildItem indir/mpv-dev-*.7z).Name)",
+            "ffmpeg.exe: $ff",
+            "  $((Get-Content ffmpeg-kucuk/SURUM.txt | Select-Object -First 2) -join ' / ')",
+            "yt-dlp.exe: $ytdlp  https://github.com/yt-dlp/yt-dlp/releases/tag/$ytdlp",
+            "qjs.exe: quickjs-ng $qjs  https://github.com/quickjs-ng/quickjs/releases/tag/$qjs",
+            "Kaynak kodu / source code (libmpv, ffmpeg): https://github.com/${{ github.repository }}/releases/tag/kaynak-kodu"
+          ) | Set-Content -Encoding utf8 lisanslar/SURUMLER.txt
+          Get-Content lisanslar/SURUMLER.txt
+          Invoke-WebRequest "https://raw.githubusercontent.com/yt-dlp/yt-dlp/$ytdlp/THIRD_PARTY_LICENSES.txt" -OutFile lisanslar/yt-dlp-THIRD_PARTY_LICENSES.txt
+          "libmpv=$mpv" >> $env:GITHUB_OUTPUT
+      - name: PyInstaller (programın sürümü yazılarak)
+        shell: pwsh
+        run: |
+          (Get-Content litevideotube/youtube.py) -replace 'PROGRAM_ADI = "LiteVideoTube/[^"]*"', "PROGRAM_ADI = `"LiteVideoTube/$env:SURUM`"" | Set-Content litevideotube/youtube.py
+          Select-String 'PROGRAM_ADI = ' litevideotube/youtube.py
+          pyinstaller --noconfirm --onedir --windowed --name LiteVideoTube --icon paket/litevideotube.ico `
+            --add-data "litevideotube/qml;litevideotube/qml" `
+            --add-data "litevideotube/simgeler;litevideotube/simgeler" `
+            --add-data "litevideotube/ceviri;litevideotube/ceviri" `
+            --add-data "litevideotube/yenilikler;litevideotube/yenilikler" `
+            --exclude-module tkinter --paths . paket/giris.py 2>&1 | Select-Object -Last 2
+          Copy-Item yardim/* dist/LiteVideoTube/
+          Copy-Item -Recurse lisanslar dist/LiteVideoTube/
+          $q = "dist/LiteVideoTube/_internal/PySide6"
+          foreach ($t in "FluentWinUI3", "Imagine", "Material", "Universal", "Fusion", "iOS", "macOS") {
+            Remove-Item -Recurse -Force -ErrorAction SilentlyContinue "$q/qml/QtQuick/Controls/$t"
+            Remove-Item -Force -ErrorAction SilentlyContinue "$q/Qt6QuickControls2$t*.dll"
+          }
+          "Paket: {0:N0} MB" -f ((Get-ChildItem -Recurse dist/LiteVideoTube | Measure-Object Length -Sum).Sum / 1MB)
+      - name: Açılış denemesi (paket açılıyor ve arama sayfası geliyor mu)
+        shell: pwsh
+        run: |
+          gh release download -R pal1000/mesa-dist-win -p "mesa3d-*-release-msvc.7z" -D indir
+          7z x -y -oindir/mesa (Get-ChildItem indir/mesa3d-*.7z).FullName | Out-Null
+          Copy-Item -Recurse dist/LiteVideoTube sinama/
+          Copy-Item indir/mesa/x64/*.dll sinama/
+          $env:LVT_ARA = "blender"; $env:LVT_SINAMA = "15,$PWD\acilis.png"; $env:LVT_VERI = "$PWD\veri"
+          # Boş kayıtla ilk açılışta program ekrana göre yakınlık seçip kendini bir kez yeniden başlatabilir (uygulama.py):
+          # ilk süreç hemen çıkar, resmi yeni süreç alır. Bu yüzden sürece değil resme bakılır.
+          Start-Process sinama/LiteVideoTube.exe | Out-Null
+          for ($i = 0; $i -lt 90 -and !(Test-Path acilis.png); $i++) { Start-Sleep 1 }
+          Start-Sleep 3
+          Get-Process LiteVideoTube -ErrorAction SilentlyContinue | Stop-Process -Force
+          if (!(Test-Path acilis.png)) { "Paket açılmadı"; exit 1 }
+          & dist/LiteVideoTube/yt-dlp.exe --version
+          & dist/LiteVideoTube/ffmpeg.exe -hide_banner -version | Select-Object -First 1
+      - name: Velopack paketi (önceki sürüm indirilir, yalnız değişen kısım da hazırlanır)
+        shell: pwsh
+        run: |
+          $repo = "https://github.com/${{ github.repository }}"
+          $not = $env:NOTLAR
+          if (!$not) { $not = "LiteVideoTube $env:SURUM`n`n" + ((Get-Content lisanslar/SURUMLER.txt) -join "`n") }
+          Set-Content -Encoding utf8 notlar.md $not
+          $on = @(); if ($env:ON) { $on = @("--pre") }
+          vpk download github --repoUrl $repo --token $env:GH_TOKEN --outputDir surumler @on 2>&1 | Select-Object -Last 3
+          vpk pack --packId $env:KIMLIK --packVersion $env:SURUM --packDir dist/LiteVideoTube --mainExe LiteVideoTube.exe `
+            --packTitle LiteVideoTube --packAuthors "Adeptus Vesperius Noctivagus" --icon paket/litevideotube.ico `
+            --releaseNotes notlar.md --runtime win-x64 --outputDir surumler 2>&1 | Select-Object -Last 5
+          Get-ChildItem surumler | ForEach-Object { "{0,10:N1} MB  {1}" -f ($_.Length / 1MB), $_.Name }
+      - name: Sürümler sayfasına yükle
+        shell: pwsh
+        run: |
+          $repo = "https://github.com/${{ github.repository }}"
+          $on = @(); if ($env:ON) { $on = @("--pre") }
+          vpk upload github --repoUrl $repo --token $env:GH_TOKEN --outputDir surumler --publish @on `
+            --releaseName "LiteVideoTube $env:SURUM" --tag "v$env:SURUM"
+          # ytdlp-izle.yml bu dosyadan paketteki yt-dlp sürümünü okur.
+          gh release upload "v$env:SURUM" lisanslar/SURUMLER.txt -R ${{ github.repository }}
+  kaynak:
+    needs: [ffmpeg, paket]
+    if: ${{ !inputs.on_surum }}
+    uses: ./.github/workflows/kaynak-kodu.yml
+    permissions:
+      contents: write
+    with:
+      libmpv_etiketi: ${{ needs.paket.outputs.libmpv }}
+      ffmpeg_surum: ${{ needs.ffmpeg.outputs.surum }}
+      yayimla: "evet"

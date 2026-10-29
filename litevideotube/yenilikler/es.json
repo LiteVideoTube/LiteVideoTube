@@ -1,0 +1,32 @@
+[
+ {
+  "surum": "0.1.0",
+  "tarih": "2026-10-29",
+  "maddeler": [
+   {
+    "baslik": "Primera versión",
+    "ayrinti": "LiteVideoTube sirve para ver videos de YouTube en un programa ligero en lugar del navegador. Está hecho para funcionar bien en computadoras viejas y lentas: con el mismo video usa unas dos veces y media menos memoria que Chrome."
+   },
+   {
+    "baslik": "Suscripciones sin cuenta",
+    "ayrinti": "Puedes suscribirte a canales sin una cuenta de YouTube. Si quieres, puedes traer de una vez tus suscripciones desde la cuenta de YouTube de tu navegador. También puedes hacer que busque videos nuevos con el programa cerrado."
+   },
+   {
+    "baslik": "El video sigue al bajar",
+    "ayrinti": "Cuando bajas en la página de un video para leer comentarios o sugerencias, el video se hace pequeño y sigue reproduciéndose en una esquina."
+   },
+   {
+    "baslik": "Descargas, subtítulos y traducción",
+    "ayrinti": "Puedes descargar un video o solo su sonido. Hay subtítulos, y también subtítulos traducidos automáticamente por YouTube a otros idiomas."
+   },
+   {
+    "baslik": "Pestañas, Shorts y listas",
+    "ayrinti": "Las pestañas no quedan abiertas en segundo plano como en un navegador; solo recuerdan dónde estabas. Al cambiar a una pestaña, la página se vuelve a abrir; esto tarda un poco, y el video sigue donde lo dejaste. Así las pestañas de atrás no gastan memoria. Puedes ver Shorts y tener tus propias listas de reproducción y una lista Ver más tarde. Las listas se guardan en tu computadora y no se escriben en ninguna cuenta."
+   },
+   {
+    "baslik": "Se actualiza solo",
+    "ayrinti": "Cuando sale una nueva versión, el programa la descarga en segundo plano y te pregunta. Solo se descarga la parte que cambió; si tu computadora usa un proxy, la actualización pasa por él."
+   }
+  ]
+ }
+]

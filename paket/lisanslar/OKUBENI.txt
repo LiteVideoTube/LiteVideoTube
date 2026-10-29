@@ -1,0 +1,55 @@
+LiteVideoTube: lisanslar / licenses
+====================================
+
+LiteVideoTube özgür yazılımdır: GNU Genel Kamu Lisansı'nın (GPL) 3. sürümü ya da (dilediğiniz gibi) daha sonraki
+bir sürümü koşullarında dağıtabilir ve değiştirebilirsiniz. Program yararlı olması umuduyla, HİÇBİR GARANTİ
+OLMADAN dağıtılır. Lisansın tam metni: GPL-3.0.txt (İngilizce; resmî metin yalnız İngilizcedir).
+
+LiteVideoTube is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
+License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+later version. It is distributed WITHOUT ANY WARRANTY. Full text: GPL-3.0.txt.
+
+Copyright (C) 2026 Adeptus Vesperius Noctivagus (github.com/adeptus-vn)
+Kaynak kod / source code: https://github.com/adeptus-vn/LiteVideoTube
+
+Bu pakette başka programlar da var. Her birinin lisansı ve kaynak kodunun yeri aşağıda. Paketteki sürümler
+SURUMLER.txt dosyasında (paket yapılırken yazılır).
+This package also contains the third-party components below. The exact versions are listed in SURUMLER.txt
+(written when the package is built).
+
+Parça / component             Lisans / license                       Metin / text                  Kaynak / source
+----------------------------  -------------------------------------  ----------------------------  -----------------------------------------------
+libmpv-2.dll (mpv, FFmpeg     GPL-3.0 (mpv GPL-2.0-or-later; bu      GPL-3.0.txt, GPL-2.0.txt,      https://github.com/mpv-player/mpv
+ ve içine derlenen             derlemede FFmpeg --enable-gpl          LGPL-2.1.txt, mpv-Copyright    derleme / build: https://github.com/shinchiro/mpv-winbuild-cmake
+ kitaplıklar)                  --enable-version3, x264, x265 ile)                                    (sürüm SURUMLER.txt'te / release tag in SURUMLER.txt)
+ffmpeg.exe (FFmpeg ve LAME;   LGPL-2.1-or-later (FFmpeg, GPL         LGPL-2.1.txt, ffmpeg-LICENSE,  https://ffmpeg.org , https://lame.sourceforge.io
+ yalnız indirme için küçük     parçaları olmadan); LAME               LAME-COPYING.txt               derleme / build: paket/ffmpeg_derle.sh (LiteVideoTube)
+ derleme / small build)        LGPL-2.0-or-later
+yt-dlp.exe                    Unlicense (kamu malı / public domain); yt-dlp-Unlicense.txt,           https://github.com/yt-dlp/yt-dlp
+                               içindeki parçalar / bundled parts:     yt-dlp-THIRD_PARTY_LICENSES
+                               yt-dlp-THIRD_PARTY_LICENSES.txt
+qjs.exe (QuickJS-ng)          MIT                                    QuickJS-ng-MIT.txt             https://github.com/quickjs-ng/quickjs
+Qt 6 / PySide6 / Shiboken6    LGPL-3.0                               LGPL-3.0.txt, GPL-3.0.txt      https://download.qt.io/official_releases/QtForPython/
+                                                                                                    Qt dosyaları _internal/PySide6 klasöründe ayrı durur;
+                                                                                                    değiştirilmiş bir Qt ile değiştirilebilir.
+                                                                                                    The Qt libraries are separate files in _internal/PySide6
+                                                                                                    and can be replaced with a modified build.
+Python                        PSF-2.0                                Python-PSF.txt                 https://www.python.org
+PyInstaller (başlatıcı /      GPL-2.0-or-later, başlatıcı istisnası  PyInstaller-COPYING.txt        https://github.com/pyinstaller/pyinstaller
+ bootloader)                   / with bootloader exception
+python-mpv                    LGPL-2.1-or-later (ya da GPL-2.0+)     LGPL-2.1.txt                   https://github.com/jaseg/python-mpv
+urllib3                       MIT                                    urllib3-MIT.txt                https://github.com/urllib3/urllib3
+Velopack (güncelleme /        MIT                                    Velopack-MIT.txt               https://github.com/velopack/velopack
+ updater; varsa / if present)
+Material Symbols (simgeler /  Apache-2.0                             Apache-2.0.txt                 https://github.com/google/material-design-icons
+ icons)
+Dil adları / language names   LGPL-2.1-or-later                      LGPL-2.1.txt                   https://salsa.debian.org/iso-codes-team/iso-codes
+ (Debian iso-codes, Türkçe)
+
+Kaynak kod / source code: libmpv-2.dll ve ffmpeg.exe'nin bu pakette kullanılan sürümlerinin kaynak kodu ve derleme
+betikleri, her sürüm için bir kez, LiteVideoTube'un sürümler sayfasında "kaynak-kodu" adlı yerde durur (dosya
+adlarında sürüm yazar; paketteki sürümler SURUMLER.txt'te):
+The source code and build scripts of the libmpv-2.dll and ffmpeg.exe builds in this package are published once
+per component version on the LiteVideoTube releases page, under "kaynak-kodu" (file names carry the version; the
+versions in this package are listed in SURUMLER.txt):
+  https://github.com/adeptus-vn/LiteVideoTube/releases/tag/kaynak-kodu

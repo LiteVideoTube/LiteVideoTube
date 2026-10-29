@@ -1,0 +1,32 @@
+[
+ {
+  "surum": "0.1.0",
+  "tarih": "2026-10-29",
+  "maddeler": [
+   {
+    "baslik": "Pierwsza wersja",
+    "ayrinti": "LiteVideoTube pozwala oglądać filmy z YouTube w lekkim programie zamiast w przeglądarce. Jest zrobiony tak, by dobrze działał na starych i wolnych komputerach: przy tym samym filmie zużywa około dwa i pół raza mniej pamięci niż Chrome."
+   },
+   {
+    "baslik": "Subskrypcje bez konta",
+    "ayrinti": "Możesz subskrybować kanały bez konta YouTube. Jeśli chcesz, możesz za jednym razem przenieść subskrypcje z konta YouTube w przeglądarce. Nowe filmy mogą być sprawdzane także wtedy, gdy program jest zamknięty."
+   },
+   {
+    "baslik": "Film gra dalej po przewinięciu",
+    "ayrinti": "Gdy przewijasz stronę filmu w dół, żeby czytać komentarze lub propozycje, film zmniejsza się i gra dalej w rogu."
+   },
+   {
+    "baslik": "Pobieranie, napisy i tłumaczenie",
+    "ayrinti": "Możesz pobrać film albo sam dźwięk. Są napisy, a także napisy przetłumaczone maszynowo przez YouTube na inne języki."
+   },
+   {
+    "baslik": "Karty, Shorts i listy",
+    "ayrinti": "Karty nie zostają otwarte w tle jak w przeglądarce; pamiętają tylko, gdzie byłeś. Po przejściu na kartę strona otwiera się od nowa; trwa to chwilę, a film gra dalej od miejsca, w którym skończyłeś. Dzięki temu karty w tle nie zużywają pamięci. Możesz oglądać Shorts i mieć własne playlisty oraz listę Do obejrzenia. Listy zostają na twoim komputerze i nie są zapisywane na żadnym koncie."
+   },
+   {
+    "baslik": "Sam się aktualizuje",
+    "ayrinti": "Gdy wychodzi nowa wersja, program pobiera ją w tle i pyta cię. Pobierana jest tylko zmieniona część; jeśli komputer używa proxy, aktualizacja przechodzi przez nie."
+   }
+  ]
+ }
+]

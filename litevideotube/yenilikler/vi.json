@@ -1,0 +1,32 @@
+[
+ {
+  "surum": "0.1.0",
+  "tarih": "2026-10-29",
+  "maddeler": [
+   {
+    "baslik": "Phiên bản đầu tiên",
+    "ayrinti": "LiteVideoTube giúp bạn xem video YouTube trong một chương trình nhẹ thay vì trình duyệt. Chương trình được làm để chạy tốt trên máy tính cũ và chậm: với cùng một video, nó dùng ít bộ nhớ hơn Chrome khoảng hai lần rưỡi."
+   },
+   {
+    "baslik": "Đăng ký kênh không cần tài khoản",
+    "ayrinti": "Bạn có thể đăng ký kênh mà không cần tài khoản YouTube. Nếu muốn, bạn có thể chuyển một lần các kênh đã đăng ký từ tài khoản YouTube trong trình duyệt. Video mới cũng có thể được kiểm tra khi chương trình đã đóng."
+   },
+   {
+    "baslik": "Video vẫn phát khi cuộn xuống",
+    "ayrinti": "Khi bạn cuộn trang video xuống để đọc bình luận hoặc video gợi ý, video thu nhỏ và tiếp tục phát ở góc."
+   },
+   {
+    "baslik": "Tải xuống, phụ đề và dịch",
+    "ayrinti": "Bạn có thể tải video hoặc chỉ phần âm thanh. Có phụ đề, và cả phụ đề được YouTube dịch máy sang các ngôn ngữ khác."
+   },
+   {
+    "baslik": "Thẻ, Shorts và danh sách",
+    "ayrinti": "Các thẻ không mở sẵn ở chế độ nền như trong trình duyệt; chúng chỉ nhớ bạn đang ở đâu. Khi bạn chuyển sang một thẻ, trang được mở lại; việc này mất một chút thời gian, và video tiếp tục từ chỗ bạn dừng. Nhờ vậy các thẻ ở phía sau không tốn bộ nhớ. Bạn có thể xem Shorts, giữ danh sách phát riêng cùng danh sách Xem sau. Các danh sách nằm trên máy tính của bạn, không ghi vào tài khoản nào."
+   },
+   {
+    "baslik": "Tự cập nhật",
+    "ayrinti": "Khi có phiên bản mới, chương trình tải về ở chế độ nền rồi hỏi bạn. Chỉ phần thay đổi được tải; nếu máy tính dùng proxy, bản cập nhật đi qua proxy đó."
+   }
+  ]
+ }
+]

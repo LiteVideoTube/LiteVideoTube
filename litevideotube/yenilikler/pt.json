@@ -1,0 +1,32 @@
+[
+ {
+  "surum": "0.1.0",
+  "tarih": "2026-10-29",
+  "maddeler": [
+   {
+    "baslik": "Primeira versão",
+    "ayrinti": "O LiteVideoTube serve para assistir vídeos do YouTube num programa leve em vez do navegador. Foi feito para rodar bem em computadores velhos e lentos: no mesmo vídeo usa cerca de duas vezes e meia menos memória que o Chrome."
+   },
+   {
+    "baslik": "Inscrições sem conta",
+    "ayrinti": "Você pode se inscrever em canais sem uma conta do YouTube. Se quiser, pode trazer de uma vez suas inscrições da conta do YouTube no seu navegador. Também pode fazer o programa procurar vídeos novos mesmo fechado."
+   },
+   {
+    "baslik": "O vídeo continua ao rolar a página",
+    "ayrinti": "Quando você rola a página de um vídeo para ler comentários ou sugestões, o vídeo diminui e continua tocando no canto."
+   },
+   {
+    "baslik": "Downloads, legendas e tradução",
+    "ayrinti": "Você pode baixar um vídeo ou só o som dele. Há legendas, e também legendas traduzidas automaticamente pelo YouTube para outros idiomas."
+   },
+   {
+    "baslik": "Abas, Shorts e listas",
+    "ayrinti": "As abas não ficam abertas em segundo plano como num navegador; elas só lembram onde você estava. Ao mudar para uma aba, a página abre de novo; isso leva um instante, e o vídeo continua de onde parou. Assim as abas de trás não gastam memória. Você pode assistir Shorts e ter suas próprias playlists e uma lista Assistir mais tarde. As listas ficam no seu computador e não são gravadas em nenhuma conta."
+   },
+   {
+    "baslik": "Atualiza-se sozinho",
+    "ayrinti": "Quando sai uma versão nova, o programa baixa em segundo plano e pergunta a você. Só a parte que mudou é baixada; se o seu computador usa proxy, a atualização passa por ele."
+   }
+  ]
+ }
+]

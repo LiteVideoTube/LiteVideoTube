@@ -1,0 +1,50 @@
+name: Küçük ffmpeg (derleme)
+# Başka iş akışlarının çağırdığı parça (windows-paket.yml, yayin.yml, kaynak-kodu.yml): Windows için
+# küçük ffmpeg.exe'yi Linux'ta derler (paket/ffmpeg_derle.sh) ve "ffmpeg-kucuk" adıyla iş akışının yüklemelerine koyar
+# (ffmpeg.exe, SURUM.txt, kaynak/). Aynı ffmpeg sürümü ve aynı betikle önceki derleme önbellekten alınır.
+on:
+  workflow_call:
+    inputs:
+      surum:
+        description: ffmpeg sürümü (boşsa son kararlı sürüm)
+        type: string
+        default: ""
+    outputs:
+      surum:
+        description: Derlenen ffmpeg sürümü
+        value: ${{ jobs.derle.outputs.surum }}
+jobs:
+  derle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      surum: ${{ steps.surum.outputs.surum }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Sürüm
+        id: surum
+        run: |
+          s="${{ inputs.surum }}"
+          if [ -z "$s" ]; then
+            s=$(git ls-remote --tags https://github.com/FFmpeg/FFmpeg 'n*' | awk -F/ '{print $3}' | grep -E '^n[0-9]+\.[0-9]+(\.[0-9]+)?$' | sort -V | tail -1 | cut -c2-)
+          fi
+          echo "surum=$s" >> "$GITHUB_OUTPUT"; echo "ffmpeg $s"
+      - uses: actions/cache@v4
+        id: onbellek
+        with:
+          path: cikti
+          key: ffmpeg-kucuk-${{ steps.surum.outputs.surum }}-${{ hashFiles('paket/ffmpeg_derle.sh') }}
+      - name: Derle
+        if: steps.onbellek.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get install -y -q gcc-mingw-w64-x86-64 binutils-mingw-w64-x86-64 > /dev/null
+          time bash paket/ffmpeg_derle.sh cikti "${{ steps.surum.outputs.surum }}"
+      - name: Ne çıktı
+        run: |
+          ls -la cikti cikti/kaynak
+          cat cikti/SURUM.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ffmpeg-kucuk
+          path: cikti/
+          retention-days: 5

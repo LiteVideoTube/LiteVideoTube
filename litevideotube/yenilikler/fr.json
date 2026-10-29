@@ -1,0 +1,32 @@
+[
+ {
+  "surum": "0.1.0",
+  "tarih": "2026-10-29",
+  "maddeler": [
+   {
+    "baslik": "Première version",
+    "ayrinti": "LiteVideoTube permet de regarder des vidéos YouTube dans un programme léger plutôt que dans le navigateur. Il est fait pour bien fonctionner sur des ordinateurs anciens et lents : pour la même vidéo, il utilise environ deux fois et demie moins de mémoire que Chrome."
+   },
+   {
+    "baslik": "Abonnements sans compte",
+    "ayrinti": "Vous pouvez vous abonner à des chaînes sans compte YouTube. Si vous le souhaitez, vous pouvez récupérer d'un coup vos abonnements depuis le compte YouTube de votre navigateur. Les nouvelles vidéos peuvent aussi être vérifiées quand le programme est fermé."
+   },
+   {
+    "baslik": "La vidéo continue quand on descend",
+    "ayrinti": "Quand vous descendez dans la page d'une vidéo pour lire les commentaires ou les suggestions, la vidéo se réduit et continue dans un coin."
+   },
+   {
+    "baslik": "Téléchargements, sous-titres et traduction",
+    "ayrinti": "Vous pouvez télécharger une vidéo ou seulement son son. Les sous-titres sont disponibles, ainsi que des sous-titres traduits automatiquement par YouTube dans d'autres langues."
+   },
+   {
+    "baslik": "Onglets, Shorts et listes",
+    "ayrinti": "Les onglets ne restent pas ouverts en arrière-plan comme dans un navigateur ; ils retiennent seulement où vous étiez. Quand vous passez à un onglet, la page se rouvre ; cela prend un moment, et la vidéo reprend là où vous l'aviez laissée. Ainsi, les onglets en arrière-plan n'utilisent pas de mémoire. Vous pouvez regarder des Shorts et avoir vos propres playlists et une liste À regarder plus tard. Les listes restent sur votre ordinateur et ne sont écrites dans aucun compte."
+   },
+   {
+    "baslik": "Se met à jour tout seul",
+    "ayrinti": "Quand une nouvelle version sort, le programme la télécharge en arrière-plan et vous demande. Seule la partie modifiée est téléchargée ; si votre ordinateur utilise un proxy, la mise à jour passe par lui."
+   }
+  ]
+ }
+]
