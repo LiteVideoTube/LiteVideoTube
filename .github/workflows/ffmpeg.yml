@@ -47,7 +47,9 @@ jobs:
           key: ffmpeg-kucuk-linux-${{ steps.surum.outputs.surum }}-${{ hashFiles('paket/ffmpeg_derle.sh') }}
       - name: Derle (Linux)
         if: steps.onbellek_linux.outputs.cache-hit != 'true'
-        run: time bash paket/ffmpeg_derle.sh cikti-linux "${{ steps.surum.outputs.surum }}" linux
+        # Kaynak arşivleri Windows derlemesinin indirdikleri (cikti/kaynak): ffmpeg.org art arda ikinci indirmede
+        # bağlantıyı kesiyordu (30 Ekim, curl 35).
+        run: HAZIR_KAYNAK="$PWD/cikti/kaynak" time bash paket/ffmpeg_derle.sh cikti-linux "${{ steps.surum.outputs.surum }}" linux
       - name: Ne çıktı
         run: |
           ls -la cikti cikti/kaynak cikti-linux
