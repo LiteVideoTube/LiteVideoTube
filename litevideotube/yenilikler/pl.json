@@ -1,5 +1,19 @@
 [
  {
+  "surum": "0.1.2",
+  "tarih": "2026-10-30",
+  "maddeler": [
+   {
+    "baslik": "Koniec z zamykaniem przy uruchamianiu w Windows",
+    "ayrinti": "W Windows program czasem sam się zamykał podczas uruchamiania. Najczęściej po zmianie powiększenia. Naprawione."
+   },
+   {
+    "baslik": "Przycisk Wyślij jest zawsze widoczny przy zgłaszaniu problemu",
+    "ayrinti": "Przy dużym powiększeniu dodanie obrazu okna wypychało przycisk Wyślij poza ekran. Teraz, jeśli okno się nie mieści, jego środek się przewija, a przyciski są zawsze widoczne."
+   }
+  ]
+ },
+ {
   "surum": "0.1.1",
   "tarih": "2026-10-30",
   "maddeler": [

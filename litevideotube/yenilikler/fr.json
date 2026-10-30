@@ -1,5 +1,19 @@
 [
  {
+  "surum": "0.1.2",
+  "tarih": "2026-10-30",
+  "maddeler": [
+   {
+    "baslik": "Plus de fermeture au démarrage sous Windows",
+    "ayrinti": "Sous Windows, le programme se fermait parfois tout seul au démarrage. Cela arrivait surtout après un changement de zoom. Corrigé."
+   },
+   {
+    "baslik": "Le bouton Envoyer est toujours visible lors d'un signalement",
+    "ayrinti": "Avec un zoom important, l'ajout de l'image de la fenêtre poussait le bouton Envoyer hors de l'écran. Désormais, si la fenêtre ne tient pas, sa partie centrale défile et les boutons restent visibles."
+   }
+  ]
+ },
+ {
   "surum": "0.1.1",
   "tarih": "2026-10-30",
   "maddeler": [

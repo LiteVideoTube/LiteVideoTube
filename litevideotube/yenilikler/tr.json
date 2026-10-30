@@ -1,5 +1,19 @@
 [
  {
+  "surum": "0.1.2",
+  "tarih": "2026-10-30",
+  "maddeler": [
+   {
+    "baslik": "Windows'ta açılırken kapanma düzeldi",
+    "ayrinti": "Windows'ta program bazen açılırken kendiliğinden kapanıyordu. En çok yakınlık değiştirilince görülüyordu. Düzeldi."
+   },
+   {
+    "baslik": "Hata bildirirken Gönder düğmesi hep görünüyor",
+    "ayrinti": "Büyük yakınlıkta pencerenin resmi eklenince Gönder düğmesi ekranın dışında kalıyordu. Artık pencere sığmazsa ortası kayar, düğmeler hep görünür."
+   }
+  ]
+ },
+ {
   "surum": "0.1.1",
   "tarih": "2026-10-30",
   "maddeler": [

@@ -1,5 +1,19 @@
 [
  {
+  "surum": "0.1.2",
+  "tarih": "2026-10-30",
+  "maddeler": [
+   {
+    "baslik": "Không còn tự đóng khi mở trên Windows",
+    "ayrinti": "Trên Windows, chương trình đôi khi tự đóng khi đang mở. Thường xảy ra nhất sau khi đổi mức thu phóng. Đã sửa."
+   },
+   {
+    "baslik": "Nút Gửi luôn hiển thị khi báo lỗi",
+    "ayrinti": "Ở mức thu phóng lớn, thêm ảnh cửa sổ làm nút Gửi bị đẩy ra ngoài màn hình. Giờ nếu cửa sổ không vừa, phần giữa sẽ cuộn được và các nút luôn hiển thị."
+   }
+  ]
+ },
+ {
   "surum": "0.1.1",
   "tarih": "2026-10-30",
   "maddeler": [

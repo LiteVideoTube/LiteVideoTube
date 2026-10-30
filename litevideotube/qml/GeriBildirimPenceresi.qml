@@ -17,6 +17,7 @@ Popup {
     anchors.centerIn: parent
     width: 540
     padding: 22
+    margins: 12
     modal: true
     focus: true
     closePolicy: Popup.CloseOnEscape
@@ -86,6 +87,7 @@ Popup {
 
         // Başlık ve sağ üstte kapatma çarpısı (Vazgeç ile aynı iş; pencerelerin alışılmış yerinde).
         Item {
+            id: baslikSatiri
             width: parent.width; height: baslik.implicitHeight
             Text { id: baslik; anchors.left: parent.left; text: qsTr("Hata bildir ya da öneri yaz"); color: Renk.yazi; font.pixelSize: 18; font.weight: Font.Medium }
             Simge { objectName: "geriBildirimKapat"; ad: "close"; boy: 20; ipucu: qsTr("Kapat (Esc)")
@@ -93,10 +95,24 @@ Popup {
                 onTiklandi: p.close() }
         }
 
-        // Yazma hâli
-        Column {
+        // Yazma hâli. Ortası pencereye sığmazsa kayar, Vazgeç ve Gönder hep altta görünür: %110 yakınlıkta resim
+        // eklenince pencere ekrandan taşıyor, Gönder ekranın altında kalıyordu (Eren'in bildirimi, 30 Ekim).
+        Flickable {
+            id: kaydir
             visible: !p.kaydedilen
             width: parent.width
+            // Pencerenin sığabileceği boydan başlık, düğmeler, aralıklar ve kenar boşlukları çıkar. Bu boylar kaydir'a
+            // bağlı değil; pencerenin kendi boyu kullanılsaydı döngü olurdu.
+            height: Math.min(icerik.implicitHeight, (p.parent ? p.parent.height : 768) - 2 * p.margins
+                             - p.topPadding - p.bottomPadding - baslikSatiri.height - dugmeler.height - 2 * 14)
+            contentHeight: icerik.implicitHeight
+            clip: true
+            interactive: contentHeight > height
+            boundsBehavior: Flickable.StopAtBounds
+            ScrollBar.vertical: ScrollBar { policy: kaydir.interactive ? ScrollBar.AsNeeded : ScrollBar.AlwaysOff }
+        Column {
+            id: icerik
+            width: kaydir.width
             spacing: 14
             Row { anchors.left: parent.left;
                 spacing: 8
@@ -139,12 +155,15 @@ Popup {
                 width: parent.width; wrapMode: Text.Wrap; color: Renk.hata; font.pixelSize: 13
                 text: qsTr("Kaydedilemedi. Klasöre yazılamadı: %1").arg(geriBildirim.klasor())
             }
-            Row {
-                anchors.right: parent.right
-                spacing: 8
-                Dugme { text: qsTr("Vazgeç"); onClicked: p.close() }
-                Dugme { text: qsTr("Gönder"); ana: true; enabled: yazi.text.trim() !== ""; onClicked: p.gonder() }
-            }
+        }
+        }
+        Row {
+            id: dugmeler
+            visible: !p.kaydedilen
+            anchors.right: parent.right
+            spacing: 8
+            Dugme { text: qsTr("Vazgeç"); onClicked: p.close() }
+            Dugme { text: qsTr("Gönder"); ana: true; enabled: yazi.text.trim() !== ""; onClicked: p.gonder() }
         }
 
         // Gönderildi hâli

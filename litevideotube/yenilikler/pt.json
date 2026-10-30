@@ -1,5 +1,19 @@
 [
  {
+  "surum": "0.1.2",
+  "tarih": "2026-10-30",
+  "maddeler": [
+   {
+    "baslik": "Não fecha mais ao abrir no Windows",
+    "ayrinti": "No Windows, o programa às vezes fechava sozinho ao abrir. Acontecia principalmente depois de mudar o zoom. Corrigido."
+   },
+   {
+    "baslik": "O botão Enviar sempre aparece ao informar um problema",
+    "ayrinti": "Com zoom grande, ao adicionar a imagem da janela o botão Enviar ficava fora da tela. Agora, se a janela não couber, a parte do meio rola e os botões ficam sempre visíveis."
+   }
+  ]
+ },
+ {
   "surum": "0.1.1",
   "tarih": "2026-10-30",
   "maddeler": [

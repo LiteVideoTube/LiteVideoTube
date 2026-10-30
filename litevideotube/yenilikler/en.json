@@ -1,5 +1,19 @@
 [
  {
+  "surum": "0.1.2",
+  "tarih": "2026-10-30",
+  "maddeler": [
+   {
+    "baslik": "No more closing on startup on Windows",
+    "ayrinti": "On Windows, the program sometimes closed by itself while starting. It happened most often after changing the zoom. Fixed."
+   },
+   {
+    "baslik": "The Send button is always visible when reporting a problem",
+    "ayrinti": "At a large zoom, adding the window picture pushed the Send button off the screen. Now the middle of the window scrolls if it doesn't fit, and the buttons stay visible."
+   }
+  ]
+ },
+ {
   "surum": "0.1.1",
   "tarih": "2026-10-30",
   "maddeler": [

@@ -1,5 +1,19 @@
 [
  {
+  "surum": "0.1.2",
+  "tarih": "2026-10-30",
+  "maddeler": [
+   {
+    "baslik": "Ya no se cierra al abrirse en Windows",
+    "ayrinti": "En Windows, el programa a veces se cerraba solo al abrirse. Pasaba sobre todo al cambiar el zoom. Corregido."
+   },
+   {
+    "baslik": "El botón Enviar siempre se ve al informar un problema",
+    "ayrinti": "Con un zoom grande, al añadir la imagen de la ventana el botón Enviar quedaba fuera de la pantalla. Ahora, si la ventana no cabe, su parte central se desplaza y los botones siempre se ven."
+   }
+  ]
+ },
+ {
   "surum": "0.1.1",
   "tarih": "2026-10-30",
   "maddeler": [

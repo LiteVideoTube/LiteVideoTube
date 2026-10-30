@@ -1,5 +1,19 @@
 [
  {
+  "surum": "0.1.2",
+  "tarih": "2026-10-30",
+  "maddeler": [
+   {
+    "baslik": "Tidak lagi tertutup saat dibuka di Windows",
+    "ayrinti": "Di Windows, program kadang tertutup sendiri saat dibuka. Paling sering terjadi setelah zoom diubah. Sudah diperbaiki."
+   },
+   {
+    "baslik": "Tombol Kirim selalu terlihat saat melaporkan masalah",
+    "ayrinti": "Pada zoom besar, menambahkan gambar jendela membuat tombol Kirim keluar dari layar. Sekarang jika jendela tidak muat, bagian tengahnya bisa digulir dan tombol selalu terlihat."
+   }
+  ]
+ },
+ {
   "surum": "0.1.1",
   "tarih": "2026-10-30",
   "maddeler": [

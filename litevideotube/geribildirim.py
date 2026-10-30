@@ -106,7 +106,7 @@ def _kod_surumu():
 
 def _iz_son_satirlar():
     try:
-        satirlar = (yoklama.kok_klasor() / "iz.log").read_text(errors="replace").splitlines()
+        satirlar = (yoklama.kok_klasor() / "iz.log").read_text(encoding="utf-8", errors="replace").splitlines()
     except OSError:
         return ""
     return "".join(x + "\n" for x in satirlar[-IZ_SATIRI:])
