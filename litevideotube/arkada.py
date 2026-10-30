@@ -122,9 +122,12 @@ def calistir():
 # ---- başlatma ve bilgisayar açılınca başlama (program kullanır)
 
 def komut():
-    """Arka plan parçasını başlatan komut: paketlenmiş programda exe'nin kendisi, geliştirmede bu Python."""
+    """Arka plan parçasını başlatan komut: paketlenmiş programda exe'nin kendisi, geliştirmede bu Python.
+    AppImage'da exe, AppImage açıkken bağlanan geçici bir klasörde (/tmp/.mount_...): program kapanınca o klasör
+    kalkar. Bu yüzden program kapanınca da süren kopyalar (arka plan parçası, yeniden açılış, bilgisayar açılınca
+    başlama) AppImage dosyasının kendisinden başlatılır (APPIMAGE değişkeni, AppImage'ın açılış parçası verir)."""
     if getattr(sys, "frozen", False):
-        return [sys.executable, "--arkada"]
+        return [os.environ.get("APPIMAGE") or sys.executable, "--arkada"]
     py = sys.executable
     if sys.platform == "win32" and py.lower().endswith("python.exe"):
         py = py[:-len("python.exe")] + "pythonw.exe"   # siyah pencere açılmasın
@@ -132,6 +135,9 @@ def komut():
 
 
 def _proje_klasoru():
+    # AppImage'da geçici klasör değil (yukarıda komut()): orada çalışan süreç klasörün kalkmasını engellerdi.
+    if os.environ.get("APPIMAGE") and getattr(sys, "frozen", False):
+        return os.path.dirname(os.environ["APPIMAGE"])
     return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 

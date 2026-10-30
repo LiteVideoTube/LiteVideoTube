@@ -4,7 +4,8 @@ name: Sürüm yayımla (Velopack → GitHub Releases)
 # kısa bir açılış denemesinden geçer, Velopack'le paketlenir (bir önceki sürüme göre yalnız değişen kısım da: delta)
 # ve deponun sürümler sayfasına "v<sürüm>" adıyla yüklenir. Kurulu programlar yeni sürümü oradan alır
 # (litevideotube/guncelleme.py, "Yeni sürüm var" penceresi). Paketteki libmpv ya da ffmpeg yeni bir sürümse kaynak
-# arşivleri de "kaynak-kodu"na eklenir (kaynak-kodu.yml).
+# arşivleri de "kaynak-kodu"na eklenir (kaynak-kodu.yml). Ardından Linux paketi (AppImage) aynı sürüme eklenir ve
+# sürüm notunun başına Windows ve Linux indirme bağlantıları yazılır (yayin-linux.yml).
 #
 # Elle: Actions > "Sürüm yayımla" > Run workflow, sürüm numarasını yaz (ör. 0.2.0). yt-dlp güncellenince ytdlp-izle.yml
 # bunu kendisi çağırır. Depo gizliyken çalıştırılmaz: kullanıcıların programı gizli depodan güncelleme alamaz.
@@ -188,6 +189,15 @@ jobs:
           $not += "`n`nVirusTotal ($($dosya.Name), SHA-256 $ozet): https://www.virustotal.com/gui/file/$ozet"
           gh release edit "v$env:SURUM" -R ${{ github.repository }} --notes $not
           "https://www.virustotal.com/gui/file/$ozet"
+  linux:
+    needs: paket   # sürümü Windows paketi açar; Linux paketi ona eklenir
+    uses: ./.github/workflows/yayin-linux.yml
+    permissions:
+      contents: write
+    with:
+      surum: ${{ inputs.surum }}
+      notlar: ${{ inputs.notlar }}
+      on_surum: ${{ inputs.on_surum }}
   kaynak:
     needs: [ffmpeg, paket]
     if: ${{ !inputs.on_surum }}

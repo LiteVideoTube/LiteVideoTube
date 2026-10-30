@@ -27,14 +27,14 @@ def ytdlp_yolu():
 
 
 def ytdlp_js():
-    """yt-dlp'nin YouTube için istediği JavaScript çalıştırıcısı. Windows paketinde exe'nin yanında
-    QuickJS (qjs.exe, 2 MB; deno 93 MB tutuyordu, çözme Node'dan ~0,3 sn yavaş, 23 Ekim). Paket dışında
+    """yt-dlp'nin YouTube için istediği JavaScript çalıştırıcısı. Pakette (Windows, Linux) exe'nin yanında
+    QuickJS (qjs.exe ya da qjs, 2 MB; deno 93 MB tutuyordu, çözme Node'dan ~0,3 sn yavaş, 23 Ekim). Paket dışında
     yt-dlp'nin kendi seçimi (deno, ya da kullanıcının yt-dlp ayarı). LVT_JS ile elle verilebilir.
     Her yt-dlp çağrısı bunu kullandığı için sistemin proxy'si de burada verilir (ag.py)."""
     if os.environ.get("LVT_JS"):
         return ["--js-runtimes", os.environ["LVT_JS"], *ag.ytdlp()]
     if getattr(sys, "frozen", False):
-        qjs = os.path.join(os.path.dirname(sys.executable), "qjs.exe")
+        qjs = os.path.join(os.path.dirname(sys.executable), "qjs.exe" if sys.platform == "win32" else "qjs")
         if os.path.isfile(qjs):
             return ["--js-runtimes", "quickjs:" + qjs, *ag.ytdlp()]
     return ag.ytdlp()

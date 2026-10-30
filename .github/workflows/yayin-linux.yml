@@ -1,0 +1,159 @@
+name: Linux paketi (AppImage, Velopack)
+# Linux paketi: paket/linux_paket.sh tek klasörü yapar (Ubuntu 24.04'ün libmpv'si, yt-dlp, QuickJS, küçük ffmpeg),
+# program sanal ekranda açılıp sınanır (arama sayfası), Velopack klasörden AppImage yapar. Kurulu AppImage yeni
+# sürümü GitHub sürümlerinden kendisi alır (litevideotube/guncelleme.py; Velopack Linux'ta releases.linux.json'a bakar).
+#
+# yukle işaretli değilse yalnız yapılır ve iş akışının yüklemelerine konur ("linux-paket"; denemek için).
+# yukle işaretliyse dosyalar "v<sürüm>" sürümüne eklenir (sürüm Windows paketiyle önceden açılmış olmalı; yayin.yml
+# bunu Windows paketinden sonra çağırır) ve sürüm notunun en üstüne Windows ve Linux indirme bağlantıları yazılır.
+# Elle: Actions > "Linux paketi" > Run workflow; var olan bir sürüme Linux paketini eklemek için sürümü yazıp yukle'yi
+# işaretle (ör. 0.1.1'e sonradan eklendi).
+on:
+  workflow_dispatch:
+    inputs:
+      surum:
+        description: Sürüm (ör. 0.1.1)
+        required: true
+      yukle:
+        description: Var olan v<sürüm> sürümüne eklensin (işaretsizse yalnız yapılır)
+        type: boolean
+        default: false
+  workflow_call:
+    inputs:
+      surum: { type: string, required: true }
+      notlar: { type: string, default: "" }
+      on_surum: { type: boolean, default: false }
+      yukle: { type: boolean, default: true }
+concurrency: yayin-linux-${{ inputs.surum }}
+jobs:
+  ffmpeg:
+    uses: ./.github/workflows/ffmpeg.yml
+  paket:
+    needs: ffmpeg
+    runs-on: ubuntu-24.04   # paketin istediği en eski sistem bunun glibc'si (2.39); linux_paket.sh
+    timeout-minutes: 40
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      KIMLIK: LiteVideoTube   # Windows'la aynı; değişmemeli
+      SURUM: ${{ inputs.surum }}
+      NOTLAR: ${{ inputs.notlar }}
+      DEPO: https://github.com/${{ github.repository }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: ffmpeg-kucuk-linux
+          path: ffmpeg-kucuk-linux
+      - name: Sürüm numarası geçerli mi, yüklenecekse sürüm var mı
+        run: |
+          [[ $SURUM =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "Sürüm X.Y.Z biçiminde olmalı: $SURUM"; exit 1; }
+          if [ "${{ inputs.yukle }}" = true ]; then
+            gh release view "v$SURUM" -R ${{ github.repository }} --json assets -q '.assets[].name' > varlar.txt \
+              || { echo "v$SURUM sürümü yok: önce Windows paketiyle yayımlanmalı (yayin.yml)"; exit 1; }
+            if grep -q '\.AppImage$' varlar.txt; then echo "v$SURUM'da Linux paketi zaten var"; exit 1; fi
+          fi
+      - name: Yenilikler notu var mı
+        if: ${{ !inputs.on_surum }}
+        run: python3 araclar/yenilikler_sinama.py $SURUM
+      - name: Ön sürüm denemesinde Yenilikler notu
+        if: ${{ inputs.on_surum }}
+        run: python3 araclar/yenilikler_deneme_notu.py $SURUM
+      - name: Sistem paketleri, Python paketleri, vpk
+        run: |
+          sudo apt-get update -q > /dev/null
+          sudo apt-get install -y -q libmpv2 xvfb xauth \
+            libxcb-cursor0 libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 \
+            libxcb-render-util0 libxcb-shape0 libxcb-sync1 libxcb-xfixes0 libxcb-xkb1 libxcb-util1 > /dev/null
+          python3 -m venv /tmp/py
+          /tmp/py/bin/pip install -q -r requirements.txt pyinstaller velopack
+          v=$(/tmp/py/bin/python -c "import importlib.metadata as m; print(m.version('velopack'))")
+          dotnet tool install -g vpk --version $v > /dev/null
+      - name: Paket (paket/linux_paket.sh)
+        run: PYTHON=/tmp/py/bin/python bash paket/linux_paket.sh "$SURUM" ffmpeg-kucuk-linux
+      - name: Açılış denemesi (paket açılıyor ve arama sayfası geliyor mu)
+        run: |
+          # Boş kayıtla ilk açılışta program kendini bir kez yeniden başlatabilir (uygulama.py); bu yüzden sürece değil
+          # resme bakılır.
+          export LVT_ARA=blender LVT_SINAMA="15,$PWD/acilis.png" LVT_VERI="$PWD/veri" QT_DEBUG_PLUGINS=1
+          xvfb-run -a -s "-screen 0 1280x800x24" bash -c '
+            dist/LiteVideoTube/LiteVideoTube > acilis.log 2>&1 &
+            for i in $(seq 90); do [ -f acilis.png ] && break; sleep 1; done; sleep 3
+            pkill -x LiteVideoTube || true'
+          tail -20 acilis.log
+          [ -f acilis.png ] || { echo "Paket açılmadı"; exit 1; }
+          dist/LiteVideoTube/yt-dlp --version
+          dist/LiteVideoTube/ffmpeg -hide_banner -version | head -1
+      - name: Velopack paketi (AppImage; varsa önceki Linux sürümü indirilir, yalnız değişen kısım da hazırlanır)
+        run: |
+          not=$NOTLAR
+          [ -n "$not" ] || not="LiteVideoTube $SURUM (Linux)"$'\n\n'"$(cat dist/LiteVideoTube/lisanslar/SURUMLER.txt)"
+          printf '%s\n' "$not" > notlar.md
+          on=(); [ "${{ inputs.on_surum }}" = true ] && on=(--pre)
+          if [ "${{ inputs.yukle }}" = true ]; then
+            vpk download github --repoUrl "$DEPO" --token "$GH_TOKEN" --outputDir surumler "${on[@]}" 2>&1 | tail -3 || true
+          fi
+          vpk pack --packId "$KIMLIK" --packVersion "$SURUM" --packDir dist/LiteVideoTube --mainExe LiteVideoTube \
+            --packTitle LiteVideoTube --packAuthors "Adeptus Vesperius Noctivagus" --icon dist/litevideotube.png \
+            --categories "AudioVideo;Video" --releaseNotes notlar.md --outputDir surumler 2>&1 | tail -8
+          ls -la surumler
+      - name: AppImage'ın kendisi açılıyor mu
+        run: |
+          a=$(ls surumler/*.AppImage | head -1); chmod +x "$a"
+          export LVT_ARA=blender LVT_SINAMA="15,$PWD/acilis-appimage.png" LVT_VERI="$PWD/veri2" APPIMAGE_EXTRACT_AND_RUN=1
+          xvfb-run -a -s "-screen 0 1280x800x24" bash -c "
+            '$a' > appimage.log 2>&1 &
+            for i in \$(seq 120); do [ -f acilis-appimage.png ] && break; sleep 1; done; sleep 3
+            pkill -x LiteVideoTube || true"
+          tail -20 appimage.log
+          [ -f acilis-appimage.png ] || { echo "AppImage açılmadı"; exit 1; }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: linux-paket
+          path: |
+            surumler/
+            acilis*.png
+            acilis.log
+            appimage.log
+          retention-days: 3
+      - name: Sürüme ekle
+        if: ${{ inputs.yukle }}
+        run: |
+          on=(); [ "${{ inputs.on_surum }}" = true ] && on=(--pre)
+          vpk upload github --repoUrl "$DEPO" --token "$GH_TOKEN" --outputDir surumler --merge "${on[@]}" \
+            --releaseName "LiteVideoTube $SURUM" --tag "v$SURUM"
+          cp dist/LiteVideoTube/lisanslar/SURUMLER.txt SURUMLER-linux.txt
+          gh release upload "v$SURUM" SURUMLER-linux.txt -R ${{ github.repository }}
+      - name: Sürüm notunun başına indirme bağlantıları
+        if: ${{ inputs.yukle }}
+        run: |
+          r=${{ github.repository }}
+          varlar=$(gh release view "v$SURUM" -R "$r" --json assets -q '.assets[].name')
+          win=$(grep -- '-Setup\.exe$' <<< "$varlar" | head -1 || true)
+          lin=$(grep '\.AppImage$' <<< "$varlar" | head -1 || true)
+          {
+            echo "<!-- indir -->"
+            echo "<img src=\"https://raw.githubusercontent.com/$r/main/paket/litevideotube.png\" width=\"72\" align=\"left\" alt=\"LiteVideoTube\">"
+            echo
+            echo "**YouTube'u eski ve düşük donanımlı bilgisayarlarda, bilgisayarı zorlamadan izleyin.**"
+            echo "Watch YouTube on old and low-end computers without straining them."
+            echo "<br clear=\"left\">"
+            echo
+            echo "**İndir / Download**"
+            echo
+            [ -n "$win" ] && echo "- Windows: [$win](https://github.com/$r/releases/download/v$SURUM/$win)"
+            [ -n "$lin" ] && echo "- Linux: [$lin](https://github.com/$r/releases/download/v$SURUM/$lin) (Ubuntu 24.04, Linux Mint 22, Debian 13, Fedora 40 ve sonrası / or newer; indirdikten sonra çalıştırılabilir yapın / make it executable: \`chmod +x $lin\`; açılmazsa / if it does not start: [README](https://github.com/$r#linuxta-açılmazsa))"
+            echo "<!-- /indir -->"
+          } > baslik.md
+          gh release view "v$SURUM" -R "$r" --json body -q .body > govde.md
+          # Önceki bağlantı bölümü varsa yenisiyle değişir (iş akışı yeniden çalışırsa iki kez yazılmasın).
+          python3 - <<'EOF'
+          import re
+          govde = open("govde.md", encoding="utf-8").read()
+          govde = re.sub(r"<!-- indir -->.*?<!-- /indir -->\n*", "", govde, flags=re.S)
+          open("not.md", "w", encoding="utf-8").write(open("baslik.md", encoding="utf-8").read() + "\n" + govde)
+          EOF
+          gh release edit "v$SURUM" -R "$r" --notes-file not.md
+          cat not.md

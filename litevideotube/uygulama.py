@@ -7,9 +7,9 @@ import sys
 import time
 from pathlib import Path
 
-# Paketlenmiş programda (Windows kurulum klasörü) yardımcı programlar exe'nin yanında: libmpv-2.dll,
-# yt-dlp.exe, ffmpeg.exe (indirmede birleştirme ve MP3), deno.exe (yt-dlp'nin YouTube için istediği
-# JavaScript çalıştırıcısı). PATH'e eklenir ki python-mpv ve yt-dlp bulsun; mpv yüklenmeden önce.
+# Paketlenmiş programda (Windows kurulum klasörü, Linux AppImage'ı) yardımcı programlar exe'nin yanında: yt-dlp,
+# ffmpeg (indirmede birleştirme ve MP3), qjs (yt-dlp'nin YouTube için istediği JavaScript çalıştırıcısı; cozumle.py);
+# Windows'ta libmpv-2.dll de. PATH'e eklenir ki python-mpv ve yt-dlp bulsun; mpv yüklenmeden önce.
 if getattr(sys, "frozen", False):
     # Pencereli exe'de çıktı kanalı yok (sys.stdout None); print ve uyarılar hata vermesin.
     if sys.stdout is None:
@@ -18,8 +18,17 @@ if getattr(sys, "frozen", False):
         sys.stderr = open(os.devnull, "w")
     _yan = os.path.dirname(sys.executable)
     os.environ["PATH"] = _yan + os.pathsep + os.environ.get("PATH", "")
-    if os.path.isfile(os.path.join(_yan, "yt-dlp.exe")):
-        os.environ.setdefault("LVT_YTDL", os.path.join(_yan, "yt-dlp.exe"))
+    _ytdlp = os.path.join(_yan, "yt-dlp.exe" if sys.platform == "win32" else "yt-dlp")
+    if os.path.isfile(_ytdlp):
+        os.environ.setdefault("LVT_YTDL", _ytdlp)
+    if sys.platform.startswith("linux"):
+        # python-mpv libmpv'yi ctypes.util.find_library("mpv") ile arıyor; o yalnız sistemin kitaplıklarına bakar
+        # (ldconfig). Linux paketindeki libmpv (_internal/, paket/linux_paket.sh) ona buradan gösterilir.
+        _mpv = os.path.join(getattr(sys, "_MEIPASS", _yan), "libmpv.so.2")
+        if os.path.isfile(_mpv):
+            import ctypes.util
+            _bul = ctypes.util.find_library
+            ctypes.util.find_library = lambda ad: _mpv if ad == "mpv" else _bul(ad)
 
 # Bu ayarlar Qt yüklenmeden önce yapılmalı.
 if sys.platform.startswith("linux"):

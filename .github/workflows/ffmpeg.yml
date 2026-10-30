@@ -1,7 +1,8 @@
 name: Küçük ffmpeg (derleme)
 # Başka iş akışlarının çağırdığı parça (windows-paket.yml, yayin.yml, kaynak-kodu.yml): Windows için
 # küçük ffmpeg.exe'yi Linux'ta derler (paket/ffmpeg_derle.sh) ve "ffmpeg-kucuk" adıyla iş akışının yüklemelerine koyar
-# (ffmpeg.exe, SURUM.txt, kaynak/). Aynı ffmpeg sürümü ve aynı betikle önceki derleme önbellekten alınır.
+# (ffmpeg.exe, SURUM.txt, kaynak/). Linux paketi için aynı parçalarla tek parça (static) ffmpeg de derlenir:
+# "ffmpeg-kucuk-linux" (yayin-linux.yml). Aynı ffmpeg sürümü ve aynı betikle önceki derleme önbellekten alınır.
 on:
   workflow_call:
     inputs:
@@ -39,12 +40,25 @@ jobs:
         run: |
           sudo apt-get install -y -q gcc-mingw-w64-x86-64 binutils-mingw-w64-x86-64 > /dev/null
           time bash paket/ffmpeg_derle.sh cikti "${{ steps.surum.outputs.surum }}"
+      - uses: actions/cache@v4
+        id: onbellek_linux
+        with:
+          path: cikti-linux
+          key: ffmpeg-kucuk-linux-${{ steps.surum.outputs.surum }}-${{ hashFiles('paket/ffmpeg_derle.sh') }}
+      - name: Derle (Linux)
+        if: steps.onbellek_linux.outputs.cache-hit != 'true'
+        run: time bash paket/ffmpeg_derle.sh cikti-linux "${{ steps.surum.outputs.surum }}" linux
       - name: Ne çıktı
         run: |
-          ls -la cikti cikti/kaynak
-          cat cikti/SURUM.txt
+          ls -la cikti cikti/kaynak cikti-linux
+          cat cikti/SURUM.txt cikti-linux/SURUM.txt
       - uses: actions/upload-artifact@v4
         with:
           name: ffmpeg-kucuk
           path: cikti/
+          retention-days: 5
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ffmpeg-kucuk-linux
+          path: cikti-linux/
           retention-days: 5
