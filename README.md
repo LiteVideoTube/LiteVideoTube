@@ -1,7 +1,7 @@
 <p align="center"><img src="paket/litevideotube.png" width="112" alt="LiteVideoTube"></p>
 <h1 align="center">LiteVideoTube</h1>
-<p align="center"><b>YouTube'u eski ve düşük donanımlı bilgisayarlarda, bilgisayarı zorlamadan izleyin.</b><br>
-Watch YouTube on old and low-end computers without straining them.</p>
+<p align="center"><b>YouTube, bilgisayarı zorlamadan.</b><br>
+YouTube on far less hardware.</p>
 <p align="center"><a href="https://github.com/LiteVideoTube/LiteVideoTube/releases/latest/download/LiteVideoTube-win-Setup.exe"><b>Windows</b></a> · <a href="https://github.com/LiteVideoTube/LiteVideoTube/releases/latest/download/LiteVideoTube.AppImage"><b>Linux</b></a></p>
 
 [Türkçe](#türkçe) · [English](#english)

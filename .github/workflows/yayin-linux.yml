@@ -137,8 +137,8 @@ jobs:
             echo "<!-- indir -->"
             echo "<img src=\"https://raw.githubusercontent.com/$r/main/paket/litevideotube.png\" width=\"72\" align=\"left\" alt=\"LiteVideoTube\">"
             echo
-            echo "**YouTube'u eski ve düşük donanımlı bilgisayarlarda, bilgisayarı zorlamadan izleyin.**"
-            echo "Watch YouTube on old and low-end computers without straining them."
+            echo "**YouTube, bilgisayarı zorlamadan.**"
+            echo "YouTube on far less hardware."
             echo "<br clear=\"left\">"
             echo
             echo "**İndir / Download**"
