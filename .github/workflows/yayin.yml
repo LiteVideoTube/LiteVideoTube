@@ -182,7 +182,9 @@ jobs:
           $adres = (Invoke-RestMethod -Headers @{ "x-apikey" = $env:VT_ANAHTAR } https://www.virustotal.com/api/v3/files/upload_url).data
           curl.exe -s --fail -H "x-apikey: $env:VT_ANAHTAR" -F "file=@$($dosya.FullName)" $adres | Out-Null
           if ($LASTEXITCODE) { "VirusTotal'a yüklenemedi"; exit 1 }
-          $not = gh release view "v$env:SURUM" -R ${{ github.repository }} --json body -q .body
+          # Çok satırlı not PowerShell'de satır dizisi olarak geliyor; birleştirilmezse gh release edit her satırı ayrı
+          # argüman sayıp duruyordu ("accepts 1 arg(s), received 11"; 0.1.1'de bağlantı nota elle eklendi).
+          $not = (gh release view "v$env:SURUM" -R ${{ github.repository }} --json body -q .body) -join "`n"
           $not += "`n`nVirusTotal ($($dosya.Name), SHA-256 $ozet): https://www.virustotal.com/gui/file/$ozet"
           gh release edit "v$env:SURUM" -R ${{ github.repository }} --notes $not
           "https://www.virustotal.com/gui/file/$ozet"
