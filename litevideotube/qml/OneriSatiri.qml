@@ -19,9 +19,9 @@ Item {
         Image {
             anchors.fill: parent; fillMode: Image.PreserveAspectCrop
             source: o.v ? o.v.resim : ""; asynchronous: true
-            // Gösterildiği boyda tutulur (yüksek çözünürlüklü ekranda katı): sayfa aşağı indikçe yüzlerce öneri
-            // birikiyor, 320 piksellik resim her birinde dört kat bellek tutuyordu (23 Ekim, tur 3).
-            sourceSize.width: 160 * Screen.devicePixelRatio
+            // Gösterildiği boya yakın tutulur: sayfa aşağı indikçe yüzlerce öneri birikiyor, 320 piksellik resim
+            // her birinde dört kat bellek tutuyordu (23 Ekim, tur 3). Ara boyda değil, temiz bölümde (Renk.resimBoyu).
+            sourceSize.width: Renk.resimBoyu(160 * Screen.devicePixelRatio)
         }
         IlerlemeCizgisi { videoId: o.v ? o.v.id : "" }
         SonraIzleDugmesi { v: o.v; goster: kartFare.hovered }

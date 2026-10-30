@@ -1,5 +1,19 @@
 [
  {
+  "surum": "0.1.1",
+  "tarih": "2026-10-30",
+  "maddeler": [
+   {
+    "baslik": "Phần mô tả không còn đè lên bình luận",
+    "ayrinti": "Khi cuộn xuống trên trang video, phần mô tả của video tràn đè lên các bình luận. Đã sửa."
+   },
+   {
+    "baslik": "Ảnh thu nhỏ sắc nét hơn",
+    "ayrinti": "Ở tỉ lệ hiển thị lớn, ảnh thu nhỏ của video trông răng cưa. Giờ đã mượt."
+   }
+  ]
+ },
+ {
   "surum": "0.1.0",
   "tarih": "2026-10-30",
   "maddeler": [

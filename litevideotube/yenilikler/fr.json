@@ -1,5 +1,19 @@
 [
  {
+  "surum": "0.1.1",
+  "tarih": "2026-10-30",
+  "maddeler": [
+   {
+    "baslik": "La description ne recouvre plus les commentaires",
+    "ayrinti": "En faisant défiler une page de vidéo vers le bas, la description débordait sur les commentaires. Corrigé."
+   },
+   {
+    "baslik": "Miniatures plus nettes",
+    "ayrinti": "Avec une grande échelle d'affichage, les miniatures des vidéos paraissaient crénelées. Elles sont désormais lisses."
+   }
+  ]
+ },
+ {
   "surum": "0.1.0",
   "tarih": "2026-10-30",
   "maddeler": [

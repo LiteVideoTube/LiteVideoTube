@@ -1,5 +1,19 @@
 [
  {
+  "surum": "0.1.1",
+  "tarih": "2026-10-30",
+  "maddeler": [
+   {
+    "baslik": "Description no longer covers comments",
+    "ayrinti": "When scrolling down on a video page, the video's description spilled over the comments. Fixed."
+   },
+   {
+    "baslik": "Sharper thumbnails",
+    "ayrinti": "At a large display scale, video thumbnails looked jagged. They are smooth now."
+   }
+  ]
+ },
+ {
   "surum": "0.1.0",
   "tarih": "2026-10-30",
   "maddeler": [

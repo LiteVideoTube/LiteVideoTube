@@ -1,5 +1,19 @@
 [
  {
+  "surum": "0.1.1",
+  "tarih": "2026-10-30",
+  "maddeler": [
+   {
+    "baslik": "Deskripsi tidak lagi menutupi komentar",
+    "ayrinti": "Saat menggulir ke bawah di halaman video, deskripsi video meluber ke atas komentar. Sudah diperbaiki."
+   },
+   {
+    "baslik": "Thumbnail lebih tajam",
+    "ayrinti": "Pada skala tampilan besar, thumbnail video terlihat bergerigi. Sekarang sudah halus."
+   }
+  ]
+ },
+ {
   "surum": "0.1.0",
   "tarih": "2026-10-30",
   "maddeler": [

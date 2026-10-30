@@ -1,5 +1,19 @@
 [
  {
+  "surum": "0.1.1",
+  "tarih": "2026-10-30",
+  "maddeler": [
+   {
+    "baslik": "Opis nie zasłania już komentarzy",
+    "ayrinti": "Po przewinięciu strony filmu w dół opis filmu nachodził na komentarze. Naprawione."
+   },
+   {
+    "baslik": "Ostrzejsze miniatury",
+    "ayrinti": "Przy dużym skalowaniu ekranu miniatury filmów wyglądały na poszarpane. Teraz są gładkie."
+   }
+  ]
+ },
+ {
   "surum": "0.1.0",
   "tarih": "2026-10-30",
   "maddeler": [

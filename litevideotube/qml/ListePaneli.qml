@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Window
 import QtQuick.Controls.Basic
 
 // Bir liste oynarken video sayfasında önerilerin üstünde duran kutu (YouTube'daki gibi): listenin adı,
@@ -43,7 +44,7 @@ Rectangle {
                 anchors.left: parent.left; anchors.leftMargin: 28; anchors.verticalCenter: parent.verticalCenter
                 width: 96; height: 54; radius: 6; color: Renk.k("#1f1f1f", "#e5e5e5")
                 Image { anchors.fill: parent; fillMode: Image.PreserveAspectCrop; asynchronous: true
-                    source: modelData.resim; sourceSize.width: 192 }
+                    source: modelData.resim; sourceSize.width: Renk.resimBoyu(96 * Screen.devicePixelRatio) }
             }
             MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: p.sec(index) }
             // Yazılar sürükleyince seçilir, tıklayınca o videoya geçer (SecimKatmani).

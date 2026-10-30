@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Window
 import QtQuick.Controls.Basic
 import QtQuick.Layouts
 
@@ -44,7 +45,7 @@ Item {
                         anchors.left: parent.left; anchors.leftMargin: 8; anchors.verticalCenter: parent.verticalCenter
                         width: 85; height: 48; radius: 6; color: Renk.yuzey
                         Image { anchors.fill: parent; fillMode: Image.PreserveAspectCrop; asynchronous: true
-                            source: modelData.resim; sourceSize.width: 170 }
+                            source: modelData.resim; sourceSize.width: Renk.resimBoyu(85 * Screen.devicePixelRatio) }
                         Image { visible: modelData.resim === ""; anchors.centerIn: parent; width: 24; height: 24; sourceSize: Qt.size(48, 48)
                             source: Renk.simge(modelData.favori ? "favorite" : modelData.sabit ? "schedule" : "playlist_play"); opacity: 0.6 }
                     }

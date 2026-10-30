@@ -1,5 +1,19 @@
 [
  {
+  "surum": "0.1.1",
+  "tarih": "2026-10-30",
+  "maddeler": [
+   {
+    "baslik": "Açıklama yorumların üstüne binmiyor",
+    "ayrinti": "Video sayfasında aşağı kaydırınca videonun açıklaması yorumların üstüne taşıyordu. Düzeldi."
+   },
+   {
+    "baslik": "Küçük resimler daha net",
+    "ayrinti": "Büyük ekran ölçeğinde videoların küçük resimleri pürüzlü görünüyordu. Artık düzgün."
+   }
+  ]
+ },
+ {
   "surum": "0.1.0",
   "tarih": "2026-10-30",
   "maddeler": [

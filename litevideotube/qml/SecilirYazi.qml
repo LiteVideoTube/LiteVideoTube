@@ -14,6 +14,10 @@ TextEdit {
     readonly property bool kesik: satirSiniri > 0 && contentHeight > sinirBoy + 2
     height: satirSiniri > 0 && !acik ? Math.min(contentHeight, sinirBoy) : contentHeight
     clip: satirSiniri > 0 && !acik
+    // Kesik yazı kendi boyunda bir dokuya çizilir: video sayfası katmanda (Ana.qml) ve katmanın içinde kırpma,
+    // kırpılan öğe görünen yerin tamamen dışına çıkınca uygulanmıyor; aşağı kaydırınca açıklamanın gizli
+    // satırları yorumların üstüne çiziliyordu (30 Ekim, Windows'ta görüldü). Yalnız gerçekten kesik olanda: doku bellek ister.
+    layer.enabled: kesik && !acik
     readOnly: true
     selectByMouse: true
     activeFocusOnPress: false

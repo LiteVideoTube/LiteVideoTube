@@ -49,4 +49,13 @@ QtObject {
     // Bölüm başlıklarının renkli simgeleri (29 Ekim, dört seçenekten "her bölüm kendi renginde"):
     // renk [koyu görünümde, açık görünümde], "#"siz; açık görünümde aynı rengin koyusu.
     function simgeRenkli(ad, renk) { return "image://koyu/" + ad + "/" + (acik ? renk[1] : renk[0]) }
+    // Küçük resmin yüklenirken küçültüleceği genişlik (sourceSize.width): videoların küçük resmi 320 piksel
+    // (mqdefault). JPEG yalnız yarıya, çeyreğe... temiz küçülüyor; 320'den 240'a gibi ara boyda harf kenarları basamak
+    // basamak çıkıyordu (30 Ekim, Windows'ta %150 ekran ölçeğinde görüldü). Gösterilen boydan küçük olmayan en küçük temiz
+    // bölüme inilir, kalanını ekran kartı düzgün küçültür. fiziksel: gösterilen genişlik * Screen.devicePixelRatio.
+    function resimBoyu(fiziksel) {
+        var b = 320
+        while (b > 40 && b / 2 >= fiziksel * 0.99) b /= 2
+        return b
+    }
 }

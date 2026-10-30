@@ -1,5 +1,19 @@
 [
  {
+  "surum": "0.1.1",
+  "tarih": "2026-10-30",
+  "maddeler": [
+   {
+    "baslik": "A descrição já não cobre os comentários",
+    "ayrinti": "Ao rolar para baixo na página de um vídeo, a descrição transbordava sobre os comentários. Corrigido."
+   },
+   {
+    "baslik": "Miniaturas mais nítidas",
+    "ayrinti": "Com uma escala de ecrã grande, as miniaturas dos vídeos pareciam serrilhadas. Agora estão suaves."
+   }
+  ]
+ },
+ {
   "surum": "0.1.0",
   "tarih": "2026-10-30",
   "maddeler": [
