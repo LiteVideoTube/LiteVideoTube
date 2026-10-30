@@ -2,8 +2,6 @@
 
 **Windows için indir: [LiteVideoTube-win-Setup.exe](https://github.com/LiteVideoTube/LiteVideoTube/releases/latest/download/LiteVideoTube-win-Setup.exe)**. İndirip çift tıklayın. Windows "bilinmeyen yayımcı" derse "Ek bilgi" → "Yine de çalıştır".
 
-Eski ve zayıf bilgisayarlarda YouTube videolarını hafifçe gezip izlemek için masaüstü programı (Windows, Linux). Hiçbir ayar yapmadan açılır; videolar tarayıcı yerine programın kendi hafif oynatıcısında oynar. Abonelikler, izleme geçmişi ve listeler yalnız bu bilgisayarda durur, YouTube hesabına bir şey yazılmaz.
-
 ## Kurmak
 
 - Windows: sürümler (Releases) sayfasındaki `LiteVideoTube-win-Setup.exe`. Program yeni sürümleri kendisi indirir ve "Yeni sürüm var" penceresiyle sorar.
